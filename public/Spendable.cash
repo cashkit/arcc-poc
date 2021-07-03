@@ -1,0 +1,35 @@
+pragma cashscript ^0.6.1;
+
+/**
+ * @param: Pub key controlling the contract.
+ * @param: Hash of the parent controller contract
+ * @param: recipient public key.
+ */
+contract Spendable(pubkey ownerPk, bytes20 parentContractHash, pubkey recipientPk) {
+    // Warning: Only to be used in testing.
+    function reclaim(sig s) {
+        require(checkSig(s, ownerPk));
+    }
+
+    // Revoke the access to money of the recipient.
+    function revoke(sig s, int minerFee){
+        // Make sure that the owner is making giving the allowance.
+        require(checkSig(s, ownerPk));
+        int changeAmount = int(tx.value) - minerFee;
+        // Send the funds back to the original contract.
+        bytes32 reclaim = new OutputP2SH(bytes8(changeAmount), parentContractHash);
+        require(hash256(reclaim) == tx.hashOutputs);
+    }
+
+    function spend(
+        pubkey pk,
+        sig s,
+    ) {
+        // Spend the money however the recipient wants.
+        require(pk == recipientPk);
+        require(checkSig(s, pk));
+        // Restricted Spending: Can add restrictions like only the 10% of the tx.value can be spend.
+        // Simulated State Spending: Can add restrictions like once per block can be spent.
+
+    }
+}

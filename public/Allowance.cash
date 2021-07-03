@@ -1,0 +1,32 @@
+pragma cashscript ^0.6.1;
+
+contract Allowance(pubkey ownerPk) {
+    function reclaim(pubkey pk, sig s) {
+        require(pk == ownerPk);
+        require(checkSig(s, pk));
+    }
+    
+    // Get the contract here and allow the spending of that contract.
+    function allow(pubkey pk, sig s, int minerFee, int amount, bytes20 recipient ){
+        // Make sure that the owner is making giving the allowance.
+        require(checkSig(s, ownerPk));
+
+        int changeAmount = int(tx.value) - amount - minerFee;
+        int dust = 546;
+
+        // Construct the contract just like the Spendable.cash with same owner as this contract.
+        bytes recipientContract = ownerPk + hash160(tx.bytecode) + recipient;
+
+        bytes32 spend = new OutputP2SH(bytes8(amount), hash160(recipientContract));
+
+        if(changeAmount > dust){
+            // Spend the amount to be sent to the recipient.
+            // Get the change back to the contract.
+            bytes32 change = new OutputP2SH(bytes8(changeAmount), hash160(tx.bytecode));
+            require(hash256(spend + change) == tx.hashOutputs);
+        } else {
+            // Donate the amount less than dust to the miners.
+            require(hash256(spend) == tx.hashOutputs); 
+        }
+    }
+}
