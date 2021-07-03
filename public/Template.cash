@@ -1,0 +1,20 @@
+pragma cashscript ^0.6.1;
+
+contract Template(pubkey ownerPk) {
+    // Warning: Only to be used in testing.
+    function reclaim(pubkey pk, sig s) {
+        require(pk == ownerPk);
+        require(checkSig(s, pk));
+    }
+
+    function spend(
+        pubkey pk,
+        sig spenderSig,
+    ) {  
+        // Check that only a single input is used in this transaction by checking
+        // that the prevouts are equal to only the current outpoint
+        require(tx.hashPrevouts == hash256(tx.outpoint));
+        // Verify the signature of the sender.
+        require(checkSig(spenderSig, pk));
+    }
+}
