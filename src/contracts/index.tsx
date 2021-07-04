@@ -3,12 +3,11 @@ import { Contract, BitboxNetworkProvider } from 'cashscript';
 import { compileString } from 'cashc';
 
 
-export const getTemplateContract = async (ownerPk) => {
+export const getTemplateContract = async (params, contractFile) => {
 
-  const contractFetch = await fetch('Template.cash') // Inside public folder.
+  const contractFetch = await fetch(contractFile) // Inside public folder.
   const source = await contractFetch.text();
   const artifact = compileString(source)
-
 
   const bitbox = new BITBOX();
 
@@ -19,11 +18,11 @@ export const getTemplateContract = async (ownerPk) => {
 
   // Instantiate a new contract using the compiled artifact and network provider
   // AND providing the constructor parameters (pkh: alicePkh)
-  const contract = new Contract(artifact, [ownerPk], provider);
+  const contract = new Contract( artifact, [...params], provider);
   // Get contract balance & output address + balance
-  console.log('contract address:', contract.address);
-  console.log('contract balance:', await contract.getBalance());
-  console.log('contract opcount:', contract.opcount);
-  console.log('contract bytesize:', contract.bytesize);
+  console.log(contractFile, 'contract address:', contract.address);
+  console.log(contractFile, 'contract balance:', await contract.getBalance());
+  console.log(contractFile, 'contract opcount:', contract.opcount);
+  console.log(contractFile, 'contract bytesize:', contract.bytesize);
   return contract
 }

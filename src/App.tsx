@@ -1,5 +1,5 @@
 
-import Contract from './template';
+import { JointContract } from './template';
 
 
 import './App.css'
@@ -10,7 +10,7 @@ function App() {
   return (
     <div className="App">
       <div className="p-6">
-        <Contract></Contract>
+        <JointContract></JointContract>
       </div>
     </div>
   );

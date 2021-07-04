@@ -29,18 +29,17 @@ export class Signer {
 }
 
 
-//eslint-disable-next-line
-const refund = async () => {
+export const refund = async () => {
   const bitbox = new BITBOX();
   // Initialise HD node and user's keypair
-  const rootSeed = bitbox.Mnemonic.toSeed('CashScript');
+  const rootSeed = bitbox.Mnemonic.toSeed('CashSciptTemplate');
   const hdNode = bitbox.HDNode.fromSeed(rootSeed);
 
   const user = bitbox.HDNode.toKeyPair(bitbox.HDNode.derive(hdNode, 0));
   const cashAddr = bitbox.ECPair.toCashAddress(user);
   console.log(cashAddr)
   const NETWORK = 'mainnet'
-  const RECV_ADDR = 'bitcoincash:qzgjuvtvsvxwnkxnrm6jd5n0gnxqd59jwghje4zyvm'
+  const RECV_ADDR = 'bitcoincash:qz2g9hg86tpdk0rhk9qg45s6nj3xqqerkvcmz5rrq0'
 
   let sendAmount = 0
   const inputs = []

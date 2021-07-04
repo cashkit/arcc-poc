@@ -1,0 +1,63 @@
+pragma cashscript ^0.6.3;
+
+/**
+ * @param: Pub key controlling the contract.
+ */
+contract Owner(pubkey ownerPk) {
+    // The owner can make the transactions from this contract like any other wallet
+    // without a risk of ending a contract unexpectedly.
+    function spend(sig s) {
+        require(checkSig(s, ownerPk));
+    }
+     
+    /**
+    * To send the funds to a contract which is controlled by both the owner of this contract
+    * as well as the recipient.
+    *
+    * @param: s: Signature of the the owner of this contract.
+    * @param: minerFee: Used in spending this contract.
+    * @param: amount: Amount to be sent to the recipient contract
+    * @param: coOwnerPkh: Recipient's public key hash.
+    */
+    function allow(
+            sig s,
+            int minerFee,
+            int amount,
+            // For contract generation. 
+            // bytes4 initialState,
+            // bytes4 minSpendableInterval,
+            // bytes4 maxSpendable,
+            // pubkey coOwnerPk,
+            // bytes20 selfRedeemScriptHash,
+            // bytes recipientPartialRedeemScript,
+
+            bytes20 recipientScriptHash
+
+        ){
+        // Make sure that the owner is giving the allowance to the recipient by checking the signature.
+        require(checkSig(s, ownerPk));
+
+        int changeAmount = int(bytes(tx.value)) - amount - minerFee;
+
+        // Construct the contract just like the JointAccount.cash with same owner as this contract.
+        // Always send the funds to the current state contract.
+
+        // Note that the constructor parameters are added in the reverse order.
+        // So initial block is actually the first statement in the contract bytecode.
+        // bytes recipientContract = initialState + minSpendableInterval + maxSpendable + bytes(coOwnerPk) + selfRedeemScriptHash + bytes(ownerPk) + recipientPartialRedeemScript;
+        // bytes recipientContract = tx.locktime + minSpendableInterval + maxSpendable + bytes(coOwnerPk) + hash160(tx.bytecode) + bytes(ownerPk) + recipientPartialRedeemScript;
+
+        // bytes32 spend = new OutputP2SH(bytes8(amount), hash160(recipientContract));
+        bytes32 spend = new OutputP2SH(bytes8(amount), recipientScriptHash);
+
+        if(changeAmount > minerFee){
+            // Spend the amount to be sent to the recipient.
+            // Get the change back to the contract.
+            bytes32 change = new OutputP2SH(bytes8(changeAmount), hash160(tx.bytecode));
+            require(hash256(spend + change) == tx.hashOutputs);
+        } else {
+            // Donate the amount less than dust to the miners.
+            require(hash256(spend) == tx.hashOutputs); 
+        }
+    }
+}

@@ -1,0 +1,74 @@
+pragma cashscript ^0.6.3;
+
+/**
+ * @param: Pub key controlling the contract.
+ * @param: Hash of the parent controller contract
+ * @param: coOwner's public key.
+ * @param: maxSpendable.
+ * @param: minSpendableInterval.
+ * @param: initialState: The time of contract creation.
+ */
+contract JointAccount(
+        pubkey ownerPk,
+        bytes20 parentContractHash,
+        pubkey coOwnerPk,
+        bytes4 maxSpendable,
+        bytes4 minSpendableInterval,
+        bytes4 initialState)
+    {
+    // Warning: Only to be used in testing.
+    function reclaim(sig s) {
+        require(checkSig(s, ownerPk));
+    }
+
+    // Can only be used by the owner of the contract.
+    function revoke(sig s, int minerFee){
+        // Make sure that the owner is making giving the allowance.
+        require(checkSig(s, ownerPk));
+        int changeAmount = int(bytes(tx.value)) - minerFee;
+        // Send the funds back to the original contract.
+        bytes32 reclaim = new OutputP2SH(bytes8(changeAmount), parentContractHash);
+        require(hash256(reclaim) == tx.hashOutputs);
+    }
+
+    // Can only be used by the coOwner of the contract.
+    function spend(
+        sig s,
+        int minerFee,
+        int amount,
+        bytes20 recipientPkh
+    ) {
+        // Spend the money however the recipient wants.
+        require(checkSig(s, coOwnerPk));
+
+        int initial = int(initialState);
+        // Make sure that we are not spending a contract with an blockheight of less than the current height.
+        require(tx.time >= initial);
+
+        // Make sure the amount mentioned is not more than allowed spendable amount.
+        require(amount <= int(maxSpendable));
+        
+        int passedBlocks = int(tx.locktime) - initial;
+
+        // Make sure that we are waiting atleast `minSpendableInterval` to be able to spend funds again.
+        require(passedBlocks >= int(minSpendableInterval));
+
+        // Create a new contract with timelock as the current or provided locktime during contract building.
+        // Note that the constructor parameters are added in the reverse order.
+        // So initial block is actually the first statement in the contract bytecode.
+        bytes newContract = 0x04 + tx.locktime + tx.bytecode.split(5)[1];
+        int changeAmount = int(bytes(tx.value)) - minerFee - amount;
+
+        // Send the amount to the any recipient's address.
+        bytes34 out1 = new OutputP2PKH(bytes8(amount), recipientPkh);
+
+        if (changeAmount > minerFee) {
+            // Create a simulated state(Helps in enforcing spendable restrictions) by sending the money to the new contract with same
+            // parameters except the timelock.
+            bytes32 out2 = new OutputP2SH(bytes8(changeAmount), hash160(newContract));
+            require(hash256(out1 + out2) == tx.hashOutputs);
+        } else {
+            require(hash256(out1) == tx.hashOutputs);
+        }
+    }
+}
