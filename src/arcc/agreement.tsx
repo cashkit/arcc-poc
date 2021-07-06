@@ -1,19 +1,11 @@
 import React, { useState } from 'react';
 import { SignatureTemplate } from 'cashscript';
 import {
-    coOwnerPk,
     defaultAddr,
-    initialState,
     owner,
-    ownerPk,
     ownerPkh,
     ownerAddr,
-    maxSpendable,
-    minSpendableInterval
 } from './common';
-
-import { lockScriptToAddress, addressToLockScript } from '../utils/helpers';
-
 
 
 export const AgreementContract = (props) => {
@@ -24,19 +16,8 @@ export const AgreementContract = (props) => {
 
     const [ tx, setTx ] = useState("")
     const [ metaData, setMetaData ] = useState("Metadata:")
-  
-    console.log("========================================================")
-
-    // const ownerLockScript = addressToLockScript(ownerContract.address)
-    // const ownerLockScript = '0x'+ownerScriptHash
 
     const ownerContractAddr = ownerContract.address
-
-    // console.log(ownerLockScript)
-    // const ownerLockScriptHex = '0x'+ownerLockScript;
-    // const ownerContractAddr = lockScriptToAddress(ownerLockScript);
-    // console.log("ownerContractAddr: ", ownerContractAddr)
-    // console.log("ownerLockScriptHex: ", ownerLockScriptHex)
 
     const reclaim = async () => {
   
@@ -78,15 +59,10 @@ export const AgreementContract = (props) => {
       const contractAmount = agreementContractAmount - minerFee - sendAmount;
   
       const change = agreementContractAmount - minerFee
-      // setMetaData(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} change: ${change}`)
   
       console.log(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} change: ${change}`)
     
-      // const ownerScriptHashHex = '0x' + ownerLockScript
       const selfAddr = agreementContract.address
-
-      // console.log(ownerScriptHashHex)
-      console.log(selfAddr)
 
       const aggrementTx = await agreementContract.functions
         .spend(

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { SignatureTemplate } from 'cashscript';
-import { defaultAddr, ownerPk, owner, ownerAddr} from './common';
-import { binToHex } from '@bitauth/libauth';
-import { lockScriptToAddress, addressToLockScript, redeemToAddress, buildLockScriptHash } from '../utils/helpers';
+import { defaultAddr, owner, ownerAddr} from './common';
 
 
 export const OwnerContract = (props) => {
@@ -11,16 +9,6 @@ export const OwnerContract = (props) => {
   
     const [ tx, setTx ] = useState("")
     const [ metaData, setMetaData ] = useState("Metadata:")
-  
-    console.log("========================================================")
-
-
-    // const agreementLockScript = addressToLockScript(agreementContract.address)
-    // // console.log(agreementLockScript)
-    // const agreementLockScriptHex = '0x'+agreementLockScript;
-    // const agreementContractAddr = lockScriptToAddress(agreementLockScript);
-    // console.log("agreementContractAddr: ", agreementContractAddr)
-    // console.log("agreementLockScriptHex: ", agreementLockScriptHex)
 
     const reclaim = async () => {
       const minerFee = 350 // Close to min relay fee of the network.
@@ -40,20 +28,6 @@ export const OwnerContract = (props) => {
   
     const handleSubmit = async () => {
       const minerFee = 820 // Close to min relay fee of the network.
-      // const sendAmount = 1000;
-      // const contractAmount = ownerContractAmount - minerFee - sendAmount;
-  
-      // const rs = ownerContract.getRedeemScriptHex();
-      // console.log(rs)
-      // console.log(ownerContract.redeemScript)
-
-      // const m = await redeemToAddress(binToHex(ownerContract.redeemScript))
-      // const m = await redeemToAddress(rs)
-      // console.log(m, agreementLockScript)
-      // const blsh = await buildLockScriptHash(rs)
-      // const sblsh = await buildLockScriptHash(agreementLockScript)
-
-      // console.log(blsh, sblsh)
 
       const change = ownerContractAmount - minerFee
       setMetaData(`Values in sats: Input ownerContractAmount: ${ownerContractAmount}, Miner Fee: ${minerFee} change: ${change}`)
