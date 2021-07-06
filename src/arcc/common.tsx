@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { getTemplateContract } from '../contracts';
 import { numberToBinUint32LE } from '@bitauth/libauth';
 import { buildLockScriptHash } from '../utils/helpers';

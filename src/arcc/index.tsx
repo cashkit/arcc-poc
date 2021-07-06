@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { lockScriptToAddress, addressToLockScript, buildLockScriptHash } from '../utils/helpers';
+import React from 'react';
 import { OwnerContract } from './owner';
 import { AgreementContract } from './agreement';
 import {
