@@ -21,8 +21,8 @@ contract Owner(pubkey ownerPk) {
     */
     function allow(
             sig s,
-            int minerFee,
-            int amount,
+            //int minerFee,
+            //int amount,
             // For contract generation. 
             // bytes4 initialState,
             // bytes4 minSpendableInterval,
@@ -30,14 +30,13 @@ contract Owner(pubkey ownerPk) {
             // pubkey coOwnerPk,
             // bytes20 selfRedeemScriptHash,
             // bytes recipientPartialRedeemScript,
-
-            bytes20 recipientScriptHash
+            bytes20 agreementScriptHash
 
         ){
         // Make sure that the owner is giving the allowance to the recipient by checking the signature.
         require(checkSig(s, ownerPk));
 
-        int changeAmount = int(bytes(tx.value)) - amount - minerFee;
+        //int changeAmount = int(bytes(tx.value)) - amount - minerFee;
 
         // Construct the contract just like the JointAccount.cash with same owner as this contract.
         // Always send the funds to the current state contract.
@@ -47,17 +46,18 @@ contract Owner(pubkey ownerPk) {
         // bytes recipientContract = initialState + minSpendableInterval + maxSpendable + bytes(coOwnerPk) + selfRedeemScriptHash + bytes(ownerPk) + recipientPartialRedeemScript;
         // bytes recipientContract = tx.locktime + minSpendableInterval + maxSpendable + bytes(coOwnerPk) + hash160(tx.bytecode) + bytes(ownerPk) + recipientPartialRedeemScript;
 
-        // bytes32 spend = new OutputP2SH(bytes8(amount), hash160(recipientContract));
-        bytes32 spend = new OutputP2SH(bytes8(amount), recipientScriptHash);
+        //bytes32 spend = new OutputP2SH(bytes8(amount), hash160(recipientContract));
+        bytes32 spend = new OutputP2SH(tx.value, agreementScriptHash);
+        require(hash256(spend) == tx.hashOutputs);
 
-        if(changeAmount > minerFee){
-            // Spend the amount to be sent to the recipient.
-            // Get the change back to the contract.
-            bytes32 change = new OutputP2SH(bytes8(changeAmount), hash160(tx.bytecode));
-            require(hash256(spend + change) == tx.hashOutputs);
-        } else {
-            // Donate the amount less than dust to the miners.
-            require(hash256(spend) == tx.hashOutputs); 
-        }
+        // if(changeAmount > minerFee){
+        //     // Spend the amount to be sent to the recipient.
+        //     // Get the change back to the contract.
+        //     bytes32 change = new OutputP2SH(bytes8(changeAmount), hash160(tx.bytecode));
+        //     require(hash256(spend + change) == tx.hashOutputs);
+        // } else {
+        //     // Donate the amount less than dust to the miners.
+        //     require(hash256(spend) == tx.hashOutputs); 
+        // }
     }
 }
