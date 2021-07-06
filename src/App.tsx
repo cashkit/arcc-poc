@@ -1,6 +1,5 @@
 
-import { AgreementContract } from './template';
-
+import { ContractWrapper } from './arcc';
 
 import './App.css'
 import "../node_modules/bulma/bulma.sass";
@@ -10,7 +9,7 @@ function App() {
   return (
     <div className="App">
       <div className="p-6">
-        <AgreementContract></AgreementContract>
+        <ContractWrapper></ContractWrapper>
       </div>
     </div>
   );

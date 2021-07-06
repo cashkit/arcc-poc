@@ -8,9 +8,10 @@ pragma cashscript ^0.6.3;
  * @param: minSpendableInterval.
  * @param: initialState: The time of contract creation.
  */
-contract JointAccount(
+contract Agreement(
         pubkey ownerPk,
-        bytes20 parentContractHash,
+        // bytes parentContractScriptHash,
+        bytes20 parentContractScriptHash,
         pubkey coOwnerPk,
         bytes4 maxSpendable,
         bytes4 minSpendableInterval,
@@ -27,8 +28,11 @@ contract JointAccount(
         require(checkSig(s, ownerPk));
         int changeAmount = int(bytes(tx.value)) - minerFee;
         // Send the funds back to the original contract.
-        bytes32 reclaim = new OutputP2SH(bytes8(changeAmount), parentContractHash);
-        require(hash256(reclaim) == tx.hashOutputs);
+        bytes32 output = new OutputP2SH(bytes8(changeAmount), parentContractScriptHash);
+
+        //bytes output = bytes8(changeAmount) + parentContractScriptHash;
+
+        require(tx.hashOutputs == hash256(output));
     }
 
     // Can only be used by the coOwner of the contract.
@@ -36,7 +40,7 @@ contract JointAccount(
         sig s,
         int minerFee,
         int amount,
-        bytes20 recipientPkh
+        bytes20 recipientPkh // Needs to be taken care off.
     ) {
         // Spend the money however the recipient wants.
         require(checkSig(s, coOwnerPk));

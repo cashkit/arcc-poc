@@ -21,7 +21,7 @@ contract Owner(pubkey ownerPk) {
     */
     function allow(
             sig s,
-            //int minerFee,
+            int minerFee,
             //int amount,
             // For contract generation. 
             // bytes4 initialState,
@@ -30,7 +30,9 @@ contract Owner(pubkey ownerPk) {
             // pubkey coOwnerPk,
             // bytes20 selfRedeemScriptHash,
             // bytes recipientPartialRedeemScript,
+            
             bytes20 agreementScriptHash
+            // bytes agreementScriptHash
 
         ){
         // Make sure that the owner is giving the allowance to the recipient by checking the signature.
@@ -47,8 +49,14 @@ contract Owner(pubkey ownerPk) {
         // bytes recipientContract = tx.locktime + minSpendableInterval + maxSpendable + bytes(coOwnerPk) + hash160(tx.bytecode) + bytes(ownerPk) + recipientPartialRedeemScript;
 
         //bytes32 spend = new OutputP2SH(bytes8(amount), hash160(recipientContract));
-        bytes32 spend = new OutputP2SH(tx.value, agreementScriptHash);
-        require(hash256(spend) == tx.hashOutputs);
+        
+        // require(hash256(spend) == tx.hashOutputs);
+        int changeAmount = int(bytes(tx.value)) - minerFee;
+
+        bytes32 output = new OutputP2SH(bytes8(changeAmount), agreementScriptHash);
+        // bytes output = bytes8(changeAmount) + agreementScriptHash;
+
+        require(tx.hashOutputs == hash256(output));
 
         // if(changeAmount > minerFee){
         //     // Spend the amount to be sent to the recipient.

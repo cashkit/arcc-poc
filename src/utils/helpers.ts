@@ -82,6 +82,22 @@ export const hash160 = async function(payload: Uint8Array): Promise<Uint8Array>
      return lockScript;
  };
 
+ /**
+ * Helper function to construct a P2SH locking script hex string from a script bytecode hex string
+ *
+ * @param scriptBytecodeHex   Bytecode hex string of the script for which to create a P2SH locking script hex string
+ *
+ * @returns a P2SH locking script hex string corresponding to the passed script bytecode hex string
+ */
+  export const buildLockScriptHash = async function(scriptBytecodeHex: string): Promise<string>
+  {
+      // Output function call arguments for easier collection of test data.
+  
+      const scriptHash = await hash160(hexToBin(scriptBytecodeHex));
+  
+      return binToHex(scriptHash)
+  };
+
 /**
  * Helper function to convert an address to a locking script hex string
  *
