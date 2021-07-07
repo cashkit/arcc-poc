@@ -2,12 +2,15 @@ import React from 'react';
 import { OwnerContract } from './payer';
 import { AgreementContract } from './agreement';
 import {
-  coOwnerPk,
   getContractInfo,
-  initialState,
   ownerPk,
-  maxSpendable,
-  minSpendableInterval,
+  payerPk,
+  payeePk,
+  deadline,
+  maxAmountPerEpoch,
+  epoch,
+  remainingAmount,
+  validFrom
 } from './common';
 
 
@@ -22,9 +25,9 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
   
   componentDidMount = () => {
     // @ts-ignore
-    const { ownerScriptHash } = this.props;
-    if ( ownerScriptHash ) {
-      const agreementContractParams = [ownerPk, ownerScriptHash, coOwnerPk, maxSpendable, minSpendableInterval, initialState]
+    const { payerContractScriptHash } = this.props;
+    if ( payerContractScriptHash ) {
+      const agreementContractParams = [payerPk, payerContractScriptHash, payeePk, deadline, maxAmountPerEpoch, epoch, remainingAmount, validFrom]
 
       getContractInfo(agreementContractParams, 'Agreement.cash').then((res) => {
         console.log(res)
@@ -40,9 +43,9 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
     // @ts-ignore
     const { agreementContract, agreementContractAmount, agreementScriptHash } = this.state;
     // @ts-ignore
-    const { ownerContract, ownerContractAmount, ownerScriptHash } = this.props;
-    if (ownerScriptHash && agreementScriptHash){
-      const props = { ownerContract, ownerContractAmount, ownerScriptHash, agreementContract, agreementContractAmount, agreementScriptHash }
+    const { ownerContract, ownerContractAmount, payerContractScriptHash } = this.props;
+    if (payerContractScriptHash && agreementScriptHash){
+      const props = { ownerContract, ownerContractAmount, payerContractScriptHash, agreementContract, agreementContractAmount, agreementScriptHash }
       return (
         <>
         <OwnerContract {...props}></OwnerContract>
@@ -62,17 +65,17 @@ export class ContractWrapper extends React.Component<{}, {}> {
     this.state = {
       agreementContract: undefined,
       ownerContractAmount: undefined,
-      ownerScriptHash: undefined
+      payerContractScriptHash: undefined
     };
   }
   
-  // const [ ownerContract, ownerContractAmount, ownerScriptHash ] = useContract(ownerContractParams, 'Owner.cash')
+  // const [ ownerContract, ownerContractAmount, payerContractScriptHash ] = useContract(ownerContractParams, 'Owner.cash')
   componentDidMount = () => {
     const ownerContractParams = [ownerPk]
-    getContractInfo(ownerContractParams, 'Owner.cash').then((res) => {
+    getContractInfo(ownerContractParams, 'Payer.cash').then((res) => {
       console.log(res)
       // @ts-ignore
-      this.setState({ ownerContract: res[0], ownerContractAmount: res[1], ownerScriptHash: res[2] })
+      this.setState({ ownerContract: res[0], ownerContractAmount: res[1], payerContractScriptHash: res[2] })
     }).catch((e) => {
       console.log(e)
     })
@@ -81,12 +84,12 @@ export class ContractWrapper extends React.Component<{}, {}> {
 
   render() {
     // @ts-ignore
-    const { ownerContract, ownerContractAmount, ownerScriptHash } = this.state;
+    const { ownerContract, ownerContractAmount, payerContractScriptHash } = this.state;
 
-    if (ownerContract && ownerScriptHash){
+    if (ownerContract && payerContractScriptHash){
       return (
         <>
-        <AgreementContractWrapper ownerContract={ownerContract} ownerContractAmount={ownerContractAmount} ownerScriptHash={ownerScriptHash}></AgreementContractWrapper>
+        <AgreementContractWrapper ownerContract={ownerContract} ownerContractAmount={ownerContractAmount} payerContractScriptHash={payerContractScriptHash}></AgreementContractWrapper>
         </>
       )
     }
