@@ -12,13 +12,16 @@ export const defaultAddr = 'bitcoincash:qz2g9hg86tpdk0rhk9qg45s6nj3xqqerkvcmz5rr
 // eslint-disable-next-line
 export const [ owner, ownerPk, ownerPkh, ownerAddr ] = getOwnerWallet()
 
+const currentBlockHeight = 695292;
+const deadlineBlockHeight = currentBlockHeight + 3;
+
 export const payerPk = ownerPk;
 export const payeePk = ownerPk;
-export const deadline = numberToBinUint32LE(1)
+export const deadline = numberToBinUint32LE(695295)
 export const maxAmountPerEpoch = numberToBinUint32LE(5000)
-export const epoch = numberToBinUint32LE(1)
+export const epoch = numberToBinUint32LE(2)
 export const remainingAmount = numberToBinUint32LE(5000)
-export const validFrom = numberToBinUint32LE(695119) // Current height of the blockchain.
+export const validFrom = numberToBinUint32LE(currentBlockHeight) // Current height of the blockchain.
 
 export const getContractInfo = async (params, contractFile) => {
   let amount = 0

@@ -5,9 +5,9 @@ pragma cashscript ^0.6.3;
  * @param: Hash of the payer controled contract.
  * @param: payeePk's public key.
  * @param: Deadline after which the contract can be spendable by any party.
- * @param: remainingAmount: Spendable amount left per epoch.
- * @param: maxAmountPerEpoch.
- * @param: epoch.
+ * @param: maxAmountPerEpoch: Max spendable amount per epoch.
+ * @param: epoch: The time frame that puts restriction on amount that can be spent.
+ * @param: remaningAmount: The spendable amount left for each epoch.
  * @param: validFrom: The time of contract creation.
  */
 contract Agreement(
@@ -59,6 +59,66 @@ contract Agreement(
     //     require(tx.hashOutputs == hash256(toPayee + toPayer));
     // }
 
+    // Spend the amount with the permission from the payer.
+    // function spendWithSig(
+    //     sig s,
+    //     datasig signature,
+    //     bytes message,
+    //     bytes20 recipientPkh
+    // ) {
+    //     require(checkSig(s, payeePk)); // Make sure that only payee can make this transaction.
+    //     require(checkDataSig(signature, message, payerPk)); // Make sure that the payer signed the message of a specific amount.
+    //     int amount = int(message);
+        
+    //     int changeAmount = spendableRemainingAmount - minerFee - amount;
+    //     // Send the amount to the any recipient's address.
+    //     bytes34 toRecipient = new OutputP2PKH(bytes8(amount), recipientPkh);
+    //     require(hash256(toRecipient) == tx.hashOutputs);
+    // }
+
+    // Can only be used by the payeePk of the contract.
+    function spend(
+        sig s,
+        int minerFee,
+        int amount,
+        bytes20 recipientPkh // Needs to be taken care off.
+    ) {
+        require(checkSig(s, payeePk)); // Make sure that only payee can make this transaction.
+        int spendableRemainingAmount = int(remainingAmount);
+        int validFromInt = int(validFrom);
+        // require(tx.time >= validFromInt);          // Make sure that we are not spending a contract with a blockheight less than the current height.
+        
+        int passedTime = int(tx.locktime) - validFromInt; // To check whether a new epoch has started.
+        int changeAmount = int(bytes(tx.value)) - minerFee - amount;
+
+        // Make sure that we are waiting atleast `epoch` to be able to spend funds again.
+        if (passedTime >= int(epoch)){
+            // If epoch is passed then reset the remainingAmount to maxAmountPerEpoch
+            // but subtract the amount that will be spend in this transaction.
+            require(amount <= int(maxAmountPerEpoch));
+            spendableRemainingAmount = int(maxAmountPerEpoch) - amount;
+        } else {
+            require(amount <= spendableRemainingAmount); 
+        }
+
+        // Send the amount to the any recipient's address.
+        bytes34 toRecipient = new OutputP2PKH(bytes8(amount), recipientPkh);
+
+        if (changeAmount > 546) {
+            // Create a new contract with timelock as the current or provided locktime during contract building.
+            // Note that the constructor parameters are added in the reverse order.
+            // So initial block is actually the first statement in the contract bytecode.
+            bytes nextState = 0x04 + tx.locktime + 0x04 + bytes4(spendableRemainingAmount) + tx.bytecode.split(5)[1];
+        
+            // Create a simulated state(Helps in enforcing spendable restrictions) by sending the money to the new contract with same
+            // parameters except the timelock.
+            bytes32 toContract = new OutputP2SH(bytes8(changeAmount), hash160(nextState));
+            require(hash256(toRecipient + toContract) == tx.hashOutputs);
+        } else {
+            require(hash256(toRecipient) == tx.hashOutputs);
+        }
+    }
+
     // Might need this to maintain a chain of transactions and payments being done.
     function modify(
         sig payerSig,
@@ -80,66 +140,6 @@ contract Agreement(
         // bytes32 output = new OutputP2SH(bytes8(changeAmount), hash160(modifiedContract));
         // require(hash256(output) == tx.hashOutputs);
 
-    }
-
-    // Spend the amount with the permission from the payer.
-    // function spendWithSig(
-    //     sig s,
-    //     datasig signature,
-    //     bytes message,
-    //     bytes20 recipientPkh
-    // ) {
-    //     require(checkSig(s, payeePk)); // Make sure that only payee can make this transaction.
-    //     require(checkDataSig(signature, message, payerPk)); // Make sure that the payer signed the message of a specific amount.
-    //     int amount = int(message);
-        
-    //     int changeAmount = spendableAmount - minerFee - amount;
-    //     // Send the amount to the any recipient's address.
-    //     bytes34 toRecipient = new OutputP2PKH(bytes8(amount), recipientPkh);
-    //     require(hash256(toRecipient) == tx.hashOutputs);
-    // }
-
-    // Can only be used by the payeePk of the contract.
-    function spend(
-        sig s,
-        int minerFee,
-        int amount,
-        bytes20 recipientPkh // Needs to be taken care off.
-    ) {
-        require(checkSig(s, payeePk)); // Make sure that only payee can make this transaction.
-        int spendableAmount = int(remainingAmount);
-        int changeAmount = spendableAmount - minerFee - amount;
-        int validFromInt = int(validFrom);
-
-        require(tx.time >= validFromInt);          // Make sure that we are not spending a contract with a blockheight less than the current height.
-        require(amount <= int(maxAmountPerEpoch)); // Make sure the amount mentioned is not more than allowed spendable amount.
-        
-        int passedTime = int(tx.locktime) - validFromInt; // To check whether a new epoch has started.
-    
-        // Make sure that we are waiting atleast `epoch` to be able to spend funds again.
-        if (passedTime >= int(epoch)){
-            // If epoch is passed then reset the remainingAmount to maxAmountPerEpoch
-            changeAmount = int(maxAmountPerEpoch) - minerFee - amount;
-            spendableAmount = changeAmount;
-        }
-        require(spendableAmount >= 0);
-
-        // Create a new contract with timelock as the current or provided locktime during contract building.
-        // Note that the constructor parameters are added in the reverse order.
-        // So initial block is actually the first statement in the contract bytecode.
-        bytes nextState = 0x04 + tx.locktime + 0x04 + bytes4(spendableAmount) + tx.bytecode.split(5)[1];
-        
-        // Send the amount to the any recipient's address.
-        bytes34 toRecipient = new OutputP2PKH(bytes8(amount), recipientPkh);
-
-        if (changeAmount > minerFee) {
-            // Create a simulated state(Helps in enforcing spendable restrictions) by sending the money to the new contract with same
-            // parameters except the timelock.
-            bytes32 toContract = new OutputP2SH(bytes8(changeAmount), hash160(nextState));
-            require(hash256(toRecipient + toContract) == tx.hashOutputs);
-        } else {
-            require(hash256(toRecipient) == tx.hashOutputs);
-        }
     }
 
     function claimExpiredContractFunds(pubkey pk, sig s) {
