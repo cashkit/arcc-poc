@@ -21,8 +21,8 @@ export const getTemplateContract = async (params, contractFile) => {
   const contract = new Contract( artifact, [...params], provider);
   // Get contract balance & output address + balance
   console.log(contractFile, 'contract address:', contract.address);
-  // console.log(contractFile, 'contract balance:', await contract.getBalance());
-  // console.log(contractFile, 'contract opcount:', contract.opcount);
-  // console.log(contractFile, 'contract bytesize:', contract.bytesize);
+  console.log(contractFile, 'contract balance:', await contract.getBalance());
+  console.log(contractFile, 'contract opcount:', contract.opcount);
+  console.log(contractFile, 'contract bytesize:', contract.bytesize);
   return contract
 }

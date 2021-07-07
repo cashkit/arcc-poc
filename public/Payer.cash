@@ -3,7 +3,7 @@ pragma cashscript ^0.6.3;
 /**
  * @param: Pub key controlling the contract.
  */
-contract Owner(pubkey ownerPk) {
+contract Payer(pubkey ownerPk) {
     // The owner can make the transactions from this contract like any other wallet
     // without a risk of ending a contract unexpectedly.
     function spend(sig s) {

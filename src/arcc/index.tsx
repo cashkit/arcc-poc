@@ -1,5 +1,5 @@
 import React from 'react';
-import { OwnerContract } from './owner';
+import { OwnerContract } from './payer';
 import { AgreementContract } from './agreement';
 import {
   coOwnerPk,
