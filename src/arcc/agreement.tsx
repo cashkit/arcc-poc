@@ -6,6 +6,7 @@ import {
     ownerPkh,
     ownerAddr,
     initialAmount,
+    newAgeementCurrentTimeParameter
 } from './common';
 
 
@@ -91,6 +92,7 @@ export const AgreementContract = (props) => {
         )
         // .withFeePerByte(1)
         .withHardcodedFee(minerFee)
+        //.withTime(newAgeementCurrentTimeParameter)
         .to(ownerAddr, sendAmount)
         .to(nextAgreementContractAddress, contractAmount)
         // .build()

@@ -12,18 +12,19 @@ export const defaultAddr = 'bitcoincash:qz2g9hg86tpdk0rhk9qg45s6nj3xqqerkvcmz5rr
 // eslint-disable-next-line
 export const [ owner, ownerPk, ownerPkh, ownerAddr ] = getOwnerWallet()
 
-// const currentTimeParameter = 695385;
+const currentTimeParameter = 695420;
 // const deadlineBlockParameter = currentTimeParameter + 3;
 
-const currentTimeParameter = 1625731487;
+// const currentTimeParameter = 1625736649;
 // const currentTimeParameter = Math.floor(new Date().getTime() / 1000) // current time in seconds.
-const epochBlockParameter =  60*1 // 1 minutes. i.e 60 seconds.
-const deadlineBlockParameter = currentTimeParameter + 60*1000 // 1000 minutes
+// const epochBlockParameter =  0 // 0 Blocks
+const epochBlockParameter =  60 // 1 min
+// const deadlineBlockParameter = currentTimeParameter + 60*1000 // 1000 minutes
 export const initialAmount = 3000
 
 console.log("currentTimeParameter", currentTimeParameter)
 console.log(epochBlockParameter)
-console.log(deadlineBlockParameter)
+// console.log(deadlineBlockParameter)
 
 export const payerPk = ownerPk;
 export const payeePk = ownerPk;
@@ -31,15 +32,15 @@ export const payeePk = ownerPk;
 // const payerAddr = bitbox.ECPair.toCashAddress(owner);
 // const payeeAddr = bitbox.ECPair.toCashAddress(owner);
 
-export const deadline = numberToBinUint32LE(deadlineBlockParameter)
+// export const deadline = numberToBinUint32LE(deadlineBlockParameter)
 export const maxAmountPerEpoch = numberToBinUint32LE(initialAmount)
 export const epoch = numberToBinUint32LE(epochBlockParameter)
 export const remainingAmount = numberToBinUint32LE(initialAmount)
 export const validFrom = numberToBinUint32LE(currentTimeParameter) // Current height of the blockchain.
 
-// const newAgeementCurrentTimeParameter = Math.floor(new Date().getTime() / 1000) // current time in seconds.
-const newAgeementCurrentTimeParameter = 695413 // current time in seconds.
-
+//export const newAgeementCurrentTimeParameter = Math.floor(new Date().getTime() / 1000) // current time in seconds.
+export const newAgeementCurrentTimeParameter = 695420 // current time in seconds.
+console.log("newAgeementCurrentTimeParameter", newAgeementCurrentTimeParameter)
 export const newContractValidFrom = numberToBinUint32LE(newAgeementCurrentTimeParameter)
 
 export const getContractInfo = async (params, contractFile) => {
