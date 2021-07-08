@@ -5,7 +5,7 @@ import { defaultAddr, owner, ownerAddr} from './common';
 
 export const OwnerContract = (props) => {
 
-    const { ownerContract, ownerContractAmount, ownerScriptHash, agreementContract, agreementContractAmount, agreementScriptHash } = props;
+    const { ownerContract, ownerContractAmount, payerContractScriptHash, agreementContract, agreementContractAmount, agreementScriptHash } = props;
   
     const [ tx, setTx ] = useState("")
     const [ metaData, setMetaData ] = useState("Metadata:")
@@ -58,7 +58,7 @@ export const OwnerContract = (props) => {
   
     return (
       <div className="box column mr-2">
-        <div className="title box">Owner Contract</div>
+        <div className="title box">Payer Contract</div>
   
         <div className="field">
           <label className="label">Addr</label>
@@ -66,21 +66,21 @@ export const OwnerContract = (props) => {
               {ownerContract?.address}
           </div>
           <div className="control">
-              {ownerContractAmount}
+              Balance: {ownerContractAmount}
           </div>
         </div>
   
         <div className="field">
-          <label className="label">owner pub key Addr</label>
+          <label className="label">Owner/Payer Addr</label>
           <div className="control">
               {ownerAddr}
           </div>
         </div>
 
         <div className="field">
-          <label className="label">owner script hash</label>
+          <label className="label">Payer Contract Script hash</label>
           <div className="control">
-              0x{ownerScriptHash}
+              0x{payerContractScriptHash}
           </div>
         </div>
        

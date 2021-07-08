@@ -12,16 +12,35 @@ export const defaultAddr = 'bitcoincash:qz2g9hg86tpdk0rhk9qg45s6nj3xqqerkvcmz5rr
 // eslint-disable-next-line
 export const [ owner, ownerPk, ownerPkh, ownerAddr ] = getOwnerWallet()
 
-const currentBlockHeight = 695292;
-const deadlineBlockHeight = currentBlockHeight + 3;
+// const currentTimeParameter = 695385;
+// const deadlineBlockParameter = currentTimeParameter + 3;
+
+const currentTimeParameter = 1625731487;
+// const currentTimeParameter = Math.floor(new Date().getTime() / 1000) // current time in seconds.
+const epochBlockParameter =  60*1 // 1 minutes. i.e 60 seconds.
+const deadlineBlockParameter = currentTimeParameter + 60*1000 // 1000 minutes
+export const initialAmount = 3000
+
+console.log("currentTimeParameter", currentTimeParameter)
+console.log(epochBlockParameter)
+console.log(deadlineBlockParameter)
 
 export const payerPk = ownerPk;
 export const payeePk = ownerPk;
-export const deadline = numberToBinUint32LE(695295)
-export const maxAmountPerEpoch = numberToBinUint32LE(5000)
-export const epoch = numberToBinUint32LE(2)
-export const remainingAmount = numberToBinUint32LE(5000)
-export const validFrom = numberToBinUint32LE(currentBlockHeight) // Current height of the blockchain.
+
+// const payerAddr = bitbox.ECPair.toCashAddress(owner);
+// const payeeAddr = bitbox.ECPair.toCashAddress(owner);
+
+export const deadline = numberToBinUint32LE(deadlineBlockParameter)
+export const maxAmountPerEpoch = numberToBinUint32LE(initialAmount)
+export const epoch = numberToBinUint32LE(epochBlockParameter)
+export const remainingAmount = numberToBinUint32LE(initialAmount)
+export const validFrom = numberToBinUint32LE(currentTimeParameter) // Current height of the blockchain.
+
+// const newAgeementCurrentTimeParameter = Math.floor(new Date().getTime() / 1000) // current time in seconds.
+const newAgeementCurrentTimeParameter = 695413 // current time in seconds.
+
+export const newContractValidFrom = numberToBinUint32LE(newAgeementCurrentTimeParameter)
 
 export const getContractInfo = async (params, contractFile) => {
   let amount = 0

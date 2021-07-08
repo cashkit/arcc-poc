@@ -5,12 +5,22 @@ import {
     owner,
     ownerPkh,
     ownerAddr,
+    initialAmount,
 } from './common';
+
 
 
 export const AgreementContract = (props) => {
 
-    const { ownerContract, ownerContractAmount, ownerScriptHash, agreementContract, agreementContractAmount, agreementScriptHash } = props;
+    const {
+      ownerContract,
+      ownerContractAmount,
+      payerContractScriptHash,
+      agreementContract,
+      agreementContractAmount,
+      agreementScriptHash,
+      nextAgreementContractAddress
+    } = props;
   
     console.log(props)
 
@@ -21,7 +31,7 @@ export const AgreementContract = (props) => {
 
     const reclaim = async () => {
   
-      const minerFee = 475 // Close to min relay fee of the network.
+      const minerFee = 542 // Close to min relay fee of the network.
       const change = agreementContractAmount - minerFee
   
       setMetaData(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} change: ${change}`)
@@ -54,15 +64,23 @@ export const AgreementContract = (props) => {
     }
   
     const handleSubmit = async () => {
-      const minerFee = 1016 // Close to min relay fee of the network.
+      const minerFee = 1216 // Close to min relay fee of the network.
       const sendAmount = 1000;
       const contractAmount = agreementContractAmount - minerFee - sendAmount;
-  
-      const change = agreementContractAmount - minerFee
-  
-      console.log(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} change: ${change}`)
     
-      const selfAddr = agreementContract.address
+      console.log(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} sendAmount: ${sendAmount} contractAmount: ${contractAmount}`)
+    
+      // const selfAddr = agreementContract.address
+
+      // 3000 is the previous contract's input value.
+
+      // let nextContractRemainingAmount;
+      // const isNewEpoch = true;
+      // if (isNewEpoch) {
+      //   nextContractRemainingAmount = contractAmount
+      // } else {
+      //   nextContractRemainingAmount = initialAmount - sendAmount
+      // }
 
       const aggrementTx = await agreementContract.functions
         .spend(
@@ -74,9 +92,9 @@ export const AgreementContract = (props) => {
         // .withFeePerByte(1)
         .withHardcodedFee(minerFee)
         .to(ownerAddr, sendAmount)
-        .to(selfAddr, contractAmount)
+        .to(nextAgreementContractAddress, contractAmount)
         // .build()
-        // .send();    
+        .send();    
   
       console.log(aggrementTx)
   
@@ -98,12 +116,19 @@ export const AgreementContract = (props) => {
           </div>
         </div>
   
-        <div className="field">
-          <label className="label">owner pub key Addr</label>
+        {/* <div className="field">
+          <label className="label">Payer Addr</label>
           <div className="control">
               {ownerAddr}
           </div>
         </div>
+
+        <div className="field">
+          <label className="label">Payee Addr</label>
+          <div className="control">
+              {ownerAddr}
+          </div>
+        </div> */}
        
         <div className="field">
           <label className="label">Agreement script hash</label>
@@ -131,7 +156,20 @@ export const AgreementContract = (props) => {
           <p className="content">{tx}</p>
           </div>
         </div>
-  
+        
+        <div className="pt-4 field">
+          <label className="label">Payer Contract Hash</label>
+          <div className="control">
+          <p className="content">{payerContractScriptHash}</p>
+          </div>
+        </div>
+
+        <div className="pt-4 field">
+          <label className="label">Next Contract Agreement Addr</label>
+          <div className="control">
+          <p className="content">{nextAgreementContractAddress}</p>
+          </div>
+        </div>
         
       </div>
     )

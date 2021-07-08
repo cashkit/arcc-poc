@@ -11,6 +11,13 @@ import {
 } from '@bitauth/libauth';
 
 
+export const hexToNum = (hex, length = 4, reverse = true) => {
+    const h2b = hexToBin(hex)
+    const buf = Buffer.from(h2b);
+    if (reverse) { buf.reverse() }
+    return buf.readUIntBE(0, length)
+}
+
 export const redeemToAddress = async function(redeemScript) {
 	// Derive the contract's address.
 	//const contractLockScript = await buildLockScriptP2SH(binToHex(redeemScript));
