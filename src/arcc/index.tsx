@@ -55,14 +55,17 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
       // console.log(b2h)
       // const h2b = hexToBin(b2h)
       // console.log(h2b)
-      // //console.log(hexToNum('1039', 2, false))
+      // console.log(hexToNum('1039', 2, false))
       
       // console.log(hexToNum('2202', 2))
-      // console.log(hexToNum('049d0a00'))
+      console.log(hexToNum('649d0a00'))
+      console.log(hexToNum('d0070000'))
+      console.log(hexToNum('05000000'))
+      console.log(hexToNum('06000000'))
 
-      const newAgeementCurrentTimeParameter = 695558
+      const newAgeementCurrentTimeParameter = 695652
       const nextRemainingAmount = numberToBinUint32LE(2000);
-      const newRemainingTime = numberToBinUint32LE(6);
+      const newRemainingTime = numberToBinUint32LE(5);
       const newContractValidFrom = numberToBinUint32LE(newAgeementCurrentTimeParameter)
 
       const nextAgreementContractParams = [

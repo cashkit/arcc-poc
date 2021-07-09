@@ -14,8 +14,8 @@ export const defaultAddr = 'bitcoincash:qz2g9hg86tpdk0rhk9qg45s6nj3xqqerkvcmz5rr
 export const [ owner, ownerPk, ownerPkh, ownerAddr ] = getOwnerWallet()
 
 // Block Height
-const currentTimeParameter = 695558;
-export const newAgeementCurrentTimeParameter = 695558
+const currentTimeParameter = 695651;
+export const newAgeementCurrentTimeParameter = 695651
 
 // const currentTimeParameter = 1625736649;
 // const currentTimeParameter = Math.floor(new Date().getTime() / 1000) // current time in seconds.
