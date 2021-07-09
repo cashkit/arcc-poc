@@ -54,7 +54,7 @@ contract Agreement(
         // This will be used to check whether a new epoch has started.
         int passedTime = int(tx.locktime) - validFromTime;
         // Make sure that we are waiting atleast `epoch` to be able to spend funds again.
-        int intEpoch = int(epoch);
+        int iEpoch = int(epoch);
         
         // This `if` statement will execute in the following cases:
         // Case 1: Epoch is set to 0 which means the remainingTime will also be always 0 and hence the passedTime will
@@ -69,24 +69,24 @@ contract Agreement(
         // Case 3: Payee is making a transaction within an epoch window but it's already half way through.
         if (passedTime >= newRemainingTime){
             // This is just a placeholder value the real value will be updated in the code below.
-            int timeSinceLastEpoch = intEpoch;
+            int timeSinceLastEpoch = iEpoch;
             // Case 1
-            if (intEpoch == 0 ) {
+            if (iEpoch == 0 ) {
                 timeSinceLastEpoch = 0;
             // Case 2
-            } else if (passedTime > intEpoch){
-                timeSinceLastEpoch = passedTime % intEpoch;
-            // Case: 3
+            } else if (passedTime > iEpoch){
+                timeSinceLastEpoch = passedTime % iEpoch;
+            // Case 3
             } else {
                 // If epoch is passed then reset the remainingAmount to maxAmountPerEpoch
                 // but subtract the amount that will be spend in this transaction.
                 timeSinceLastEpoch = passedTime - newRemainingTime;
             }
-            newRemainingTime = intEpoch - timeSinceLastEpoch;
+            newRemainingTime = iEpoch - timeSinceLastEpoch;
             newRemainingAmount = int(maxAmountPerEpoch) - amount;
         } else {
             // This block will execute when passedTime is less than remaining time
-            // i.e the epoch has just started and is not half way through
+            // i.e the epoch is not half way through yet.
             newRemainingTime = newRemainingTime - passedTime;
             newRemainingAmount = newRemainingAmount - amount;
         }
