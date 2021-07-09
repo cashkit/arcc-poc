@@ -14,7 +14,7 @@ import {
   epoch,
   remainingAmount,
   validFrom,
-  newContractValidFrom
+  // newContractValidFrom
 } from './common';
 
 
@@ -60,8 +60,10 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
       // console.log(hexToNum('2202', 2))
       // console.log(hexToNum('049d0a00'))
 
+      const newAgeementCurrentTimeParameter = 695558
       const nextRemainingAmount = numberToBinUint32LE(2000);
       const newRemainingTime = numberToBinUint32LE(6);
+      const newContractValidFrom = numberToBinUint32LE(newAgeementCurrentTimeParameter)
 
       const nextAgreementContractParams = [
         payerPk,
@@ -141,11 +143,10 @@ export class ContractWrapper extends React.Component<{}, {}> {
     };
   }
   
-  // const [ ownerContract, ownerContractAmount, payerContractScriptHash ] = useContract(ownerContractParams, 'Owner.cash')
   componentDidMount = () => {
     const ownerContractParams = [ownerPk]
     getContractInfo(ownerContractParams, 'Payer.cash').then((res) => {
-      console.log(res)
+      // console.log(res)
       // @ts-ignore
       this.setState({ ownerContract: res[0], ownerContractAmount: res[1], payerContractScriptHash: res[2] })
     }).catch((e) => {
