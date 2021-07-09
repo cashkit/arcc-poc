@@ -78,7 +78,11 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
       //console.log(hexToNum('1039', 2, false))
       
       console.log(hexToNum('2202', 2))
-      console.log(hexToNum('1976a914', 4, false))
+      console.log(hexToNum('049d0a00'))
+
+      const nextRemainingAmount = numberToBinUint32LE(2000);
+      const newRemainingTime = numberToBinUint32LE(6);
+
 
       const nextAgreementContractParams = [
         payerPk,
@@ -87,8 +91,8 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
         // deadline,
         maxAmountPerEpoch,
         epoch,
-        remainingTime,
-        remainingAmount,
+        newRemainingTime,
+        nextRemainingAmount,
         newContractValidFrom
     ]
 

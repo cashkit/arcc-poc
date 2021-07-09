@@ -32,13 +32,13 @@ export const AgreementContract = (props) => {
 
     const reclaim = async () => {
   
-      const minerFee = 542 // Close to min relay fee of the network.
+      const minerFee = 942 // Close to min relay fee of the network.
       const change = agreementContractAmount - minerFee
   
       setMetaData(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} change: ${change}`)
   
       const tx = await agreementContract.functions
-      .reclaim(new SignatureTemplate(owner))
+      .revoke(new SignatureTemplate(owner))
       .withHardcodedFee(minerFee)
       .to(defaultAddr, change)
       .send()
@@ -86,18 +86,21 @@ export const AgreementContract = (props) => {
       //   nextContractRemainingAmount = initialAmount - sendAmount
       // }
 
+      console.log("ownerAddr", ownerAddr)
+      console.log("nextAgreementContractAddress", nextAgreementContractAddress)
+
       const aggrementTx = await agreementContract.functions
         .spend(
           new SignatureTemplate(owner),
           amountToNextState,
           sendAmount
         )
-        .alterByteCode()
+        // .alterByteCode()
         .withHardcodedFee(minerFee)
         .to(ownerAddr, sendAmount)
         .to(nextAgreementContractAddress, amountToNextState)
         // .build()
-        // .send();
+        .send();
       
       // const haha = numberToBinUint32LE(1625736649)
       // console.log(haha)
@@ -111,9 +114,9 @@ export const AgreementContract = (props) => {
       // // console.log(modifyRedeemScript)
       // console.log(agreementContract.redeemScript)
 
-      const m = await aggrementTx.build()
+      // const m = await aggrementTx.build()
 
-      console.log(m)
+      // console.log(m)
       
   
       setTx("aggrementTx status: ", JSON.stringify(aggrementTx))

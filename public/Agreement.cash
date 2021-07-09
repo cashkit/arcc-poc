@@ -21,74 +21,12 @@ contract Agreement(
         bytes4 remainingAmount,
         bytes4 validFrom)
     {
-    // Warning: Only to be used in testing.
-    // function reclaim(sig s) {
-    //     require(checkSig(s, payerPk));
-    // }
 
     // Can only be used by the owner of the contract.
     function revoke(sig s){
         // Make sure that the owner is making this transaction.
         require(checkSig(s, payerPk));
-        // Verify that the transaction is older than current time.
-
-        // int changeAmount = int(bytes(tx.value)) - minerFee;
-
-        // Send the funds back to the payer contract.
-        // bytes32 output = new OutputP2SH(bytes8(changeAmount), payerContractScriptHash);
-        // require(tx.hashOutputs == hash256(output));
     }
-
-    // Can only be used by the owner of the contract.
-    // function revoke(sig s, int changeAmount){
-    //     // Make sure that the owner is making this transaction.
-    //     require(checkSig(s, payerPk));
-    //     // Verify that the transaction is older than current time.
-
-    //     // int changeAmount = int(bytes(tx.value)) - minerFee;
-
-    //     // Send the funds back to the payer contract.
-    //     bytes32 output = new OutputP2SH(bytes8(changeAmount), payerContractScriptHash);
-    //     require(tx.hashOutputs == hash256(output));
-    // }
-
-    // Can only be used by the owner of the contract.
-    // function revokeAlmostFairly(sig s, int minerFee){
-    //     // Make sure that the owner is making this transaction.
-    //     require(checkSig(s, payerPk));
-    //     // Verify that the transaction is older than current time.
-    //     int passedTime = int(tx.locktime) - int(validFrom); // Blocks passed
-
-    //     int timeSinceLastEpoch = passedTime % int(epoch); // Only considering the time after the last epoch.
-    //     int reverseFraction = int(epoch)/timeSinceLastEpoch;
-    //     int returnAmount = int(maxAmountPerEpoch)/reverseFraction;
-    
-    //     require(returnAmount <= int(remainingAmount));
-
-    //     int changeAmount = int(bytes(tx.value)) - minerFee - returnAmount;
-
-    //     // Send the funds back to the payer contract.
-    //     bytes32 toPayee = new OutputP2SH(bytes8(returnAmount), hash160(payeePk));
-    //     bytes32 toPayer = new OutputP2SH(bytes8(changeAmount), payerContractScriptHash);
-    //     require(tx.hashOutputs == hash256(toPayee + toPayer));
-    // }
-
-    // Spend the amount with the permission from the payer.
-    // function spendWithSig(
-    //     sig s,
-    //     datasig signature,
-    //     bytes message,
-    //     bytes20 hash160(payeePk)
-    // ) {
-    //     require(checkSig(s, payeePk)); // Make sure that only payee can make this transaction.
-    //     require(checkDataSig(signature, message, payerPk)); // Make sure that the payer signed the message of a specific amount.
-    //     int amount = int(message);
-        
-    //     int changeAmount = newRemainingAmount - minerFee - amount;
-    //     // Send the amount to the any recipient's address.
-    //     bytes34 toRecipient = new OutputP2PKH(bytes8(amount), hash160(payeePk));
-    //     require(hash256(toRecipient) == tx.hashOutputs);
-    // }
 
     /**
      * @param: s: signature of the payeePk.
@@ -116,7 +54,7 @@ contract Agreement(
         // To check whether a new epoch has started.
         // 695538 - 695534 = 4 // Blocks.
         int passedTime = int(tx.locktime) - validFromTime;
-
+        // require(passedTime > 0);
         // Make sure that we are waiting atleast `epoch` to be able to spend funds again.
         // if (passedTime >= int(remainingTime)){
         int intEpoch = int(epoch);
@@ -150,32 +88,4 @@ contract Agreement(
         bytes32 toContract = new OutputP2SH(bytes8(amountToNextState), hash160(nextState));
         require(hash256(toRecipient + toContract) == tx.hashOutputs);
     }
-
-    // Might need this to maintain a chain of transactions and payments being done.
-    // function modify(
-    //     sig payerSig,
-    //     sig payeePkSig,
-    //     int transferAmount,
-    //     bytes20 newAgreementScriptHash,
-    // ){
-    //     // Make sure they both agree to the new changes.
-    //     require(checkSig(payerSig, payerPk));
-    //     require(checkSig(payeePkSig, payeePk));
-
-    //     // Add in the scripthash of the new contract that both parties can agree upon.
-    //     bytes32 output = new OutputP2SH(bytes8(transferAmount), newAgreementScriptHash);
-    //     require(tx.hashOutputs == hash256(output));
-
-    //     // OR
-    //     // bytes modifiedContract = 0x04 + newvalidFrom + 0x04 + epoch + 0x04 + newMaxAmountPerEpoch + tx.bytecode.split(15)[1];
-    //     // bytes32 output = new OutputP2SH(bytes8(transferAmount), hash160(modifiedContract));
-    //     // require(hash256(output) == tx.hashOutputs);
-
-    // }
-
-    // function claimExpiredContractFunds(pubkey pk, sig s) {
-    //     // Funds can be spend by anyone making the contract obsolete.
-    //     require(checkSig(s, pk));
-    //     require(int(tx.locktime) >= int(deadline));
-    // }
 }

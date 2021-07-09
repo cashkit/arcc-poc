@@ -12,7 +12,7 @@ export const defaultAddr = 'bitcoincash:qz2g9hg86tpdk0rhk9qg45s6nj3xqqerkvcmz5rr
 // eslint-disable-next-line
 export const [ owner, ownerPk, ownerPkh, ownerAddr ] = getOwnerWallet()
 
-const currentTimeParameter = 695440;
+const currentTimeParameter = 695558;
 const deadlineBlockParameter = currentTimeParameter + 12 + 1;
 
 // const currentTimeParameter = 1625736649;
@@ -39,7 +39,7 @@ export const remainingAmount = numberToBinUint32LE(initialAmount)
 export const validFrom = numberToBinUint32LE(currentTimeParameter) // Current height of the blockchain.
 
 //export const newAgeementCurrentTimeParameter = Math.floor(new Date().getTime() / 1000) // current time in seconds.
-export const newAgeementCurrentTimeParameter = 695440 // current time in seconds.
+export const newAgeementCurrentTimeParameter = 695558 // current time in seconds.
 console.log("newAgeementCurrentTimeParameter", newAgeementCurrentTimeParameter)
 export const newContractValidFrom = numberToBinUint32LE(newAgeementCurrentTimeParameter)
 
