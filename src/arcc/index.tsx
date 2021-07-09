@@ -9,7 +9,8 @@ import {
   ownerPk,
   payerPk,
   payeePk,
-  // deadline,
+  deadline,
+  remainingTime,
   maxAmountPerEpoch,
   epoch,
   remainingAmount,
@@ -39,6 +40,7 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
           // deadline,
           maxAmountPerEpoch,
           epoch,
+          remainingTime,
           remainingAmount,
           validFrom
       ]
@@ -68,12 +70,15 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
 
       console.log("nextContractRemainingAmount: ", nextContractRemainingAmount)
 
-      const n2b = numberToBinUint32LE(1625736984)
-      console.log(binToHex(n2b))
+      const n2b = numberToBinUint32LE(695440)
+      const b2h = binToHex(n2b)
+      console.log(b2h)
+      const h2b = hexToBin(b2h)
+      console.log(h2b)
       //console.log(hexToNum('1039', 2, false))
       
-      console.log(hexToNum('c9c5e660'))
-      console.log(hexToNum('7a9c0a00'))
+      console.log(hexToNum('2202', 2))
+      console.log(hexToNum('1976a914', 4, false))
 
       const nextAgreementContractParams = [
         payerPk,
@@ -82,9 +87,8 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
         // deadline,
         maxAmountPerEpoch,
         epoch,
-        //numberToBinUint32LE(3000),
+        remainingTime,
         remainingAmount,
-        // validFrom
         newContractValidFrom
     ]
 

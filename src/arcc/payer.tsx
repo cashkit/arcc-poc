@@ -11,13 +11,14 @@ export const OwnerContract = (props) => {
     const [ metaData, setMetaData ] = useState("Metadata:")
 
     const reclaim = async () => {
-      const minerFee = 350 // Close to min relay fee of the network.
+      const minerFee = 300 // Close to min relay fee of the network.
       const change = ownerContractAmount - minerFee
   
       setMetaData(`Values in sats: Input ownerContractAmount: ${ownerContractAmount}, Miner Fee: ${minerFee} change: ${change}`)
   
       const tx = await ownerContract.functions
       .spend(new SignatureTemplate(owner))
+      .withHardcodedFee(minerFee)
       .to(defaultAddr, change)
       .send()
   

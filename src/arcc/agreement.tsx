@@ -6,9 +6,9 @@ import {
     ownerPkh,
     ownerAddr,
     initialAmount,
-    newAgeementCurrentTimeParameter
+    newContractValidFrom
 } from './common';
-
+import { numberToBinUint32LE } from '@bitauth/libauth';
 
 
 export const AgreementContract = (props) => {
@@ -39,6 +39,7 @@ export const AgreementContract = (props) => {
   
       const tx = await agreementContract.functions
       .reclaim(new SignatureTemplate(owner))
+      .withHardcodedFee(minerFee)
       .to(defaultAddr, change)
       .send()
   
@@ -55,8 +56,10 @@ export const AgreementContract = (props) => {
       setMetaData(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} change: ${change}`)
   
       const tx = await agreementContract.functions
-      .revoke(new SignatureTemplate(owner), minerFee)
-      .to(ownerContractAddr, change)
+      .revokeAlmostFairly(new SignatureTemplate(owner))
+      .withHardcodedFee(minerFee)
+      .to(ownerAddr, change)
+      // .to(ownerContractAddr, change)
       .send()
   
       console.log(tx)
@@ -67,10 +70,10 @@ export const AgreementContract = (props) => {
     const handleSubmit = async () => {
       const minerFee = 1216 // Close to min relay fee of the network.
       const sendAmount = 1000;
-      const contractAmount = agreementContractAmount - minerFee - sendAmount;
+      const amountToNextState = agreementContractAmount - minerFee - sendAmount;
     
-      console.log(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} sendAmount: ${sendAmount} contractAmount: ${contractAmount}`)
-    
+      console.log(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} sendAmount: ${sendAmount} amountToNextState: ${amountToNextState}`)
+
       // const selfAddr = agreementContract.address
 
       // 3000 is the previous contract's input value.
@@ -86,19 +89,32 @@ export const AgreementContract = (props) => {
       const aggrementTx = await agreementContract.functions
         .spend(
           new SignatureTemplate(owner),
-          minerFee,
-          sendAmount,
-          ownerPkh
+          amountToNextState,
+          sendAmount
         )
-        // .withFeePerByte(1)
+        .alterByteCode()
         .withHardcodedFee(minerFee)
-        //.withTime(newAgeementCurrentTimeParameter)
         .to(ownerAddr, sendAmount)
-        .to(nextAgreementContractAddress, contractAmount)
+        .to(nextAgreementContractAddress, amountToNextState)
         // .build()
-        .send();    
-  
-      console.log(aggrementTx)
+        // .send();
+      
+      // const haha = numberToBinUint32LE(1625736649)
+      // console.log(haha)
+      
+      // console.log(agreementContract.redeemScript)
+      // console.log(agreementContract.redeemScript[0])
+
+      // agreementContract.redeemScript.shift()
+      // agreementContract.redeemScript.unshift(newContractValidFrom)
+      // // agreementContract.redeemScript[0] = newContractValidFrom
+      // // console.log(modifyRedeemScript)
+      // console.log(agreementContract.redeemScript)
+
+      const m = await aggrementTx.build()
+
+      console.log(m)
+      
   
       setTx("aggrementTx status: ", JSON.stringify(aggrementTx))
   
@@ -117,20 +133,6 @@ export const AgreementContract = (props) => {
               Balance: {agreementContractAmount}
           </div>
         </div>
-  
-        {/* <div className="field">
-          <label className="label">Payer Addr</label>
-          <div className="control">
-              {ownerAddr}
-          </div>
-        </div>
-
-        <div className="field">
-          <label className="label">Payee Addr</label>
-          <div className="control">
-              {ownerAddr}
-          </div>
-        </div> */}
        
         <div className="field">
           <label className="label">Agreement script hash</label>
