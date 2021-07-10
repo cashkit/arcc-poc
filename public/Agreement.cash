@@ -41,21 +41,22 @@ contract Agreement(
     ) {
         // Make sure that only payee can make this transaction.
         require(checkSig(payeeSig, payeePk));
-        int newRemainingAmount = int(remainingAmount);
-        int newRemainingTime = int(remainingTime);
+        int iEpoch = int(epoch);
         // As a safety measure as this amount is used in further calculations.
         require(amount >= 546);
         require(amount <= int(maxAmountPerEpoch));
-
-        int validFromTime = int(validFrom);
         // Make sure that we are not spending a contract with a blockheight less than the current height.
-        require(tx.time >= validFromTime);
+        require(tx.time >= int(validFrom));
 
         // This will be used to check whether a new epoch has started.
-        int passedTime = int(tx.locktime) - validFromTime;
+        int passedTime = int(tx.locktime) - int(validFrom);
         // Make sure that we are waiting atleast `epoch` to be able to spend funds again.
-        int iEpoch = int(epoch);
-        
+
+        // This block will execute when passedTime is less than remaining time
+        // i.e the epoch is not half way through yet.
+        int newRemainingTime = int(remainingTime) - passedTime;
+        int newRemainingAmount = int(remainingAmount) - amount;
+
         // This `if` statement will execute in the following cases:
         // Case 1: Epoch is set to 0 which means the remainingTime will also be always 0 and hence the passedTime will
         //         always be greater than or equal to remainingTime. This helps in cases where there is no need for a time.
@@ -65,16 +66,19 @@ contract Agreement(
         //         from the contract.
         //         Note: This means that if no amount was redeemed in the last epoch then that amount is no longer redeemable.
         //         Since the spending functionality can easily be implemented in the 'outside' world of Bitcoin Script,
-        //         it's better not to include a logic which can be covered by a layer of frontend.        
+        //         it's better not to include a logic which can be covered by a layer of frontend.      
         // Case 3: Payee is making a transaction within an epoch window but it's already half way through.
         if (passedTime >= newRemainingTime){
+            newRemainingAmount = int(maxAmountPerEpoch) - amount;
             // This is just a placeholder value the real value will be updated in the code below.
             int timeSinceLastEpoch = iEpoch;
             // Case 1
             if (iEpoch == 0 ) {
                 timeSinceLastEpoch = 0;
+                newRemainingAmount = int(maxAmountPerEpoch);
             // Case 2
-            } else if (passedTime > iEpoch){
+            } else
+            if (passedTime > iEpoch){
                 timeSinceLastEpoch = passedTime % iEpoch;
             // Case 3
             } else {
@@ -83,12 +87,6 @@ contract Agreement(
                 timeSinceLastEpoch = passedTime - newRemainingTime;
             }
             newRemainingTime = iEpoch - timeSinceLastEpoch;
-            newRemainingAmount = int(maxAmountPerEpoch) - amount;
-        } else {
-            // This block will execute when passedTime is less than remaining time
-            // i.e the epoch is not half way through yet.
-            newRemainingTime = newRemainingTime - passedTime;
-            newRemainingAmount = newRemainingAmount - amount;
         }
 
         // Create a new contract with timelock as the current or provided locktime during contract building.
@@ -100,6 +98,7 @@ contract Agreement(
         // parameters except the timelock.
         bytes34 toRecipient = new OutputP2PKH(bytes8(amount), hash160(payeePk));
         bytes32 toContract = new OutputP2SH(bytes8(amountToNextState), hash160(nextState));
+
         require(hash256(toRecipient + toContract) == tx.hashOutputs);
     }
 }
