@@ -35,8 +35,8 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
       const agreementContractParams = [
           payerPk,
           payeePk,
-          maxAmountPerEpoch,
           epoch,
+          maxAmountPerEpoch,
           remainingTime,
           remainingAmount,
           validFrom
@@ -71,8 +71,8 @@ export class AgreementContractWrapper extends React.Component<{}, {}> {
       const nextAgreementContractParams = [
         payerPk,
         payeePk,
-        maxAmountPerEpoch,
         epoch,
+        maxAmountPerEpoch,
         newRemainingTime,
         nextRemainingAmount,
         newContractValidFrom

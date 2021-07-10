@@ -21,6 +21,7 @@ export const newAgeementCurrentTimeParameter = 695651
 // const currentTimeParameter = Math.floor(new Date().getTime() / 1000) // current time in seconds.
 const epochBlockParameter =  6 // 6 blocks
 const remainingTimeBlockParameter =  6 // 6 blocks
+
 export const initialAmount = 3000
 
 export const payerPk = ownerPk;

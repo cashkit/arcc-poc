@@ -3,8 +3,8 @@ pragma cashscript ^0.6.3;
 /**
  * @param: payerPk: Pubkey of the payer.
  * @param: payeePk: Pubkey of the payee.
- * @param: maxAmountPerEpoch: Max amount allowed to be spend by payee per epoch.
  * @param: epoch: Each epoch represents a timeframe.
+ * @param: maxAmountPerEpoch: Max amount allowed to be spend by payee per epoch.
  * @param: remainingTime: The remaining time after which a new epoch will get started.
  * @param: remaningAmount: Remaining amount that can be withdrawan from the contract by payee before next epoch starts.
  * @param: validFrom: The blockheight/time of contract/state creation.
@@ -12,8 +12,8 @@ pragma cashscript ^0.6.3;
 contract Agreement(
         pubkey payerPk,
         pubkey payeePk,
-        bytes4 maxAmountPerEpoch,
         bytes4 epoch, // 1 epoch makes 1 block.
+        bytes4 maxAmountPerEpoch,
         bytes4 remainingTime,
         bytes4 remainingAmount,
         bytes4 validFrom)
@@ -43,13 +43,13 @@ contract Agreement(
         require(checkSig(payeeSig, payeePk));
         int iEpoch = int(epoch);
         // As a safety measure as this amount is used in further calculations.
-        require(amount >= 546);
-        require(amount <= int(maxAmountPerEpoch));
+        require(within(amount, 546, int(maxAmountPerEpoch) + 1));
         // Make sure that we are not spending a contract with a blockheight less than the current height.
         require(tx.time >= int(validFrom));
 
         // This will be used to check whether a new epoch has started.
         int passedTime = int(tx.locktime) - int(validFrom);
+        require(passedTime >= 0);
         // Make sure that we are waiting atleast `epoch` to be able to spend funds again.
 
         // This block will execute when passedTime is less than remaining time
@@ -62,6 +62,7 @@ contract Agreement(
         //         always be greater than or equal to remainingTime. This helps in cases where there is no need for a time.
         //         i.e epoch is set to 0 at the time of contract creation.
         //         The contracts will be dependent on the amount and this if statement will always execute.
+        //         The value of remainingAmount will always be maxAmountPerEpoch.
         // Case 2: If the passedTime is much biger then it means that payee has missed some epochs without fetching funds
         //         from the contract.
         //         Note: This means that if no amount was redeemed in the last epoch then that amount is no longer redeemable.
