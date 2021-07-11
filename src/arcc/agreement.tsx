@@ -332,7 +332,7 @@ export const AgreementContract = (props) => {
 
           <div className="columns">
             <div className="column" style={{ borderBottom: '2px solid rgb(30, 32, 35)' }}>
-              <div className="columns is-4 mt-2">
+              <div className="columns is-4 mt-2 pl-3">
                 <div className="title has-text-white is-4 pt-2">{'> Spend'}</div>
                 <div className="dropdown is-hoverable">
                     <div className="dropdown-trigger has-text-centered is-centered">

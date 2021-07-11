@@ -89,7 +89,6 @@ export class AgreementContractWrapper extends React.Component<any, any> {
   }
 
   createNextState = async (params) => {
-    console.log(params)
     // @ts-ignore
     const nextState = params.stateIndex;
     const blockCountNum = await bitbox.Blockchain.getBlockCount()
@@ -106,8 +105,6 @@ export class AgreementContractWrapper extends React.Component<any, any> {
       params.remainingAmount,
       validFrom
     ]
-
-    console.log(params.epoch)
 
     getContractInfo(agreementContractParams, 'Agreement.cash').then((res) => {
       // @ts-ignore
@@ -128,6 +125,7 @@ export class AgreementContractWrapper extends React.Component<any, any> {
 
       contracts.splice(nextState, 1);
       contracts.splice(nextState, 0, nextContract);
+      contracts.splice(nextState + 2, contracts.length - (nextState + 1));
 
       console.log(contracts)
 
@@ -186,10 +184,8 @@ export class AgreementContractWrapper extends React.Component<any, any> {
       const remainingTime = numberToBinUint32LE(remainingTimeNum)
 
       nextStateContract = {
-        ...nextStateContract,
+        ...currentContract,
         remainingTime,
-        remainingAmount: params.remainingAmount,
-        maxAmountPerEpoch: params.maxAmountPerEpoch,
         validFrom,
         agreementContract: nextAgreementRes[0],
         agreementContractAmount: nextAgreementRes[1],
