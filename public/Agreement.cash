@@ -78,8 +78,7 @@ contract Agreement(
                 timeSinceLastEpoch = 0;
                 newRemainingAmount = int(maxAmountPerEpoch);
             // Case 2
-            } else
-            if (passedTime > iEpoch){
+            } else if (passedTime > iEpoch){
                 timeSinceLastEpoch = passedTime % iEpoch;
             // Case 3
             } else {

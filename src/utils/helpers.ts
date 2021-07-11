@@ -18,6 +18,12 @@ export const hexToNum = (hex, length = 4, reverse = true) => {
     return buf.readUIntBE(0, length)
 }
 
+export const binToNum = (bin, length = 4, reverse = true) => {
+    const buf = Buffer.from(bin);
+    if (reverse) { buf.reverse() }
+    return buf.readUIntBE(0, length)
+}
+
 export const redeemToAddress = async function(redeemScript) {
 	// Derive the contract's address.
 	//const contractLockScript = await buildLockScriptP2SH(binToHex(redeemScript));
@@ -28,12 +34,14 @@ export const redeemToAddress = async function(redeemScript) {
 }
 
 // Wrapper around libauth's hash functions
+// Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
 const hash = function(payload: Uint8Array, hashFunction: HashFunction): Uint8Array
 {
 	return hashFunction.hash(payload);
 };
 
 /**
+ * Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
  * Sha256 hash a payload
  *
  * @param payload   Payload to be hashed
@@ -46,6 +54,7 @@ export const sha256 = async function(payload: Uint8Array): Promise<Uint8Array>
 };
 
 /**
+ * Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
  * Ripemd160 hash a payload
  *
  * @param payload   Payload to be hashed
@@ -58,6 +67,7 @@ export const ripemd160 = async function(payload: Uint8Array): Promise<Uint8Array
 };
 
 /**
+ * Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
  * Sha256 hash a payload, then ripemd160 hash the result
  *
  * @param payload   Payload to be hashed
@@ -71,6 +81,7 @@ export const hash160 = async function(payload: Uint8Array): Promise<Uint8Array>
 
 
 /**
+ * Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
  * Helper function to construct a P2SH locking script hex string from a script bytecode hex string
  *
  * @param scriptBytecodeHex   Bytecode hex string of the script for which to create a P2SH locking script hex string
@@ -106,6 +117,7 @@ export const hash160 = async function(payload: Uint8Array): Promise<Uint8Array>
   };
 
 /**
+ * Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
  * Helper function to convert an address to a locking script hex string
  *
  * @param address   Address to convert to locking script hex string
@@ -128,6 +140,7 @@ export const hash160 = async function(payload: Uint8Array): Promise<Uint8Array>
  };
 
  /**
+ * Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
  * Helper function to convert a locking script hex to a cashaddress
  *
  * @param lockScript   lock script to be converted to cashaddress
@@ -150,8 +163,8 @@ export const lockScriptToAddress = function(lockScript: string): string
 	return address;
 };
 
-
 /**
+ * Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
  * Encode a number as a hex encoded script number
  *
  * @param num   number to be encoded

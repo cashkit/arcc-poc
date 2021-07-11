@@ -3,6 +3,10 @@ import { ECPair } from 'bitcoincashjs-lib';
 import { SignatureAlgorithm } from 'cashscript';
 import { BITBOX } from 'bitbox-sdk';
 
+export const truncate = (str) => {
+	const strlen = str.length
+	return strlen > 10 ? str.substring(0, 20) + "......" + str.substring(strlen-20, strlen): str;
+}
 
 export class Signer {
   constructor(public keypair: ECPair) {}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { getTemplateContract } from '../contracts';
 import { numberToBinUint32LE } from '@bitauth/libauth';
@@ -61,30 +61,11 @@ export const getContractInfo = async (params, contractFile) => {
   return [contract, amount, completeLockScript]
 }
 
-const MaxAmountPerEpochType = {
-  First: 1000,
-  Second: 2000,
-  Third: 3000,
-  Fourth: 4000
-}
-
-const EpochType = {
-  First: 0,
-  Second: 1,
-  Third: 2,
-  Fourth: 7
-}
 
 export const CommonComponent = () => {
-  const [ maxAmountPerEpochValue, setmaxAmountPerEpochValue ] = useState(MaxAmountPerEpochType.First)
-  const [ epochType, setEpochType ] = useState(EpochType.First)
-
-
-  const handleMaxAmountPerEpochChange = (event) => {setmaxAmountPerEpochValue(event.target.value)}
-  const handleEpochChange = (event) => {setEpochType(event.target.value)}
 
   return (
-    <div className="box column mr-2">
+    <div className="box mr-2">
       <div className="field">
         <label className="label">Payer Addr</label>
         <div className="control">
@@ -94,42 +75,9 @@ export const CommonComponent = () => {
       <div className="field">
         <label className="label">Payee Addr</label>
         <div className="control">
-          {ownerAddr}
+            {ownerAddr}
         </div>
       </div>
-
-      <div className="field columns">
-        <div className="column">
-          <label className="label">MaxAmount/Epoch</label>
-          <div className="control">
-            <div className="select" onChange={handleMaxAmountPerEpochChange}>
-                <select>
-                  <option value={MaxAmountPerEpochType.First}>{MaxAmountPerEpochType.First}</option>
-                  <option value={MaxAmountPerEpochType.Second}>{MaxAmountPerEpochType.Second}</option>
-                  <option value={MaxAmountPerEpochType.Third}>{MaxAmountPerEpochType.Third}</option>
-                  <option value={MaxAmountPerEpochType.Fourth}>{MaxAmountPerEpochType.Fourth}</option>
-                </select>
-              </div>
-              <p className="content">{maxAmountPerEpochValue}</p>
-          </div>
-        </div>
-
-        <div className="column">
-          <label className="label">Epoch</label>
-          <div className="control">
-            <div className="select" onChange={handleEpochChange}>
-                <select>
-                  <option value={EpochType.First}>{EpochType.First}</option>
-                  <option value={EpochType.Second}>{EpochType.Second}</option>
-                  <option value={EpochType.Third}>{EpochType.Third}</option>
-                  <option value={EpochType.Fourth}>{EpochType.Fourth}</option>
-                </select>
-              </div>
-              <p className="content">{epochType}</p>
-          </div>
-        </div>
-      </div>
-
     </div>
     )
 }
