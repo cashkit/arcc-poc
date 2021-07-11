@@ -4,13 +4,13 @@ import { defaultAddr, owner, ownerAddr } from './common';
 import { binToHex, hexToBin, numberToBinUint32LE } from '@bitauth/libauth';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
+import { faExternalLinkAlt, faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
 import { binToNum } from '../utils/helpers';
 import { truncate } from '../utils';
 
 const initialSendAmountState = 1000
-const initialMinerFeeState = 500
-
+const initialMinerFeeState = 1216 // Close to min relay fee of the network.
+const initialRevokeMinerFeeState = 942
 
 export const AgreementContract = (props) => {
 
@@ -23,7 +23,11 @@ export const AgreementContract = (props) => {
 
     console.log(props);
 
+
+    const remainingAmount = binToNum(props?.remainingAmount);
+
     const [ metaData, setMetaData ] = useState("Metadata:")
+    const [ errorMessage, setErrorMessage ] = useState()
 
     const [ epochState, setEpochState ] = useState(binToNum(props?.epoch))
     const epochInputRef = useRef<any>(null);
@@ -36,9 +40,13 @@ export const AgreementContract = (props) => {
     const [ maxAmountPerEpochState, setMaxAmountPerEpochState ] = useState(binToNum(props?.maxAmountPerEpoch))
     const maxAmountPerEpochInputRef = useRef<any>(null);
     const onChangeMaxAmountPerEpoch = (event) => {
-      const maxAmountPerEpoch = numberToBinUint32LE(parseInt(event.target.value))
+      const maxAmountPerEpochNum = parseInt(event.target.value)
+      if (maxAmountPerEpochNum < 546) {
+        setErrorMessage("Max Amount/Epoch should be greater than 546")
+      }
+      const maxAmountPerEpoch = numberToBinUint32LE(maxAmountPerEpochNum)
       props.onChangeContractDetails({ ...props, maxAmountPerEpoch, stateIndex: props.stateIndex })
-      setMaxAmountPerEpochState(event.target.value)
+      setMaxAmountPerEpochState(maxAmountPerEpochNum)
     }
   
     const [ remainingTimeState, setRemainingTimeState ] = useState(binToNum(props?.remainingTime))
@@ -48,51 +56,67 @@ export const AgreementContract = (props) => {
       props.onChangeContractDetails({ ...props, remainingTime, stateIndex: props.stateIndex })
       setRemainingTimeState(event.target.value)
     }
-  
-    const [ remainingAmountState, setRemainingAmountState ] = useState(binToNum(props?.remainingAmount))
-    const remainingAmountInputRef = useRef<any>(null);
-    const onChangeRemainingAmount = (event) => {
-      const remainingAmount = numberToBinUint32LE(parseInt(event.target.value))
-      props.onChangeContractDetails({ ...props, remainingAmount, stateIndex: props.stateIndex })
-      setRemainingAmountState(event.target.value)
-    }
 
     const [ validFromState, setValidFromState ] = useState(binToNum(props?.validFrom))
     const validFromInputRef = useRef<any>(null);
     const onChangeValidFrom = (event) => {
-      const validFrom = numberToBinUint32LE(parseInt(event.target.value))
+      const validFromNum = parseInt(event.target.value)
+      if (validFromNum < 1) {
+        setErrorMessage("Epoch should be greater than 0")
+      }
+      const validFrom = numberToBinUint32LE(validFromNum)
       props.onChangeContractDetails({ ...props, validFrom, stateIndex: props.stateIndex })
-      setValidFromState(event.target.value)
+      setValidFromState(validFromNum)
     }
 
-    const createNextState = () => {
-      props.createNextState({
-        maxAmountPerEpoch: maxAmountPerEpochState,
-        remainingAmount: remainingAmountState,
-        remainingTime: remainingTimeState,
-        stateIndex: props.stateIndex
-      })
+    const createNextState = (param = {}) => {
+      let nextContractProps = {
+        payerPk: props.payerPk,
+        payeePk: props.payeePk,
+        epoch: numberToBinUint32LE(epochState),
+        maxAmountPerEpoch: numberToBinUint32LE(maxAmountPerEpochState),
+        remainingTime: numberToBinUint32LE(remainingTimeState),
+        remainingAmount: numberToBinUint32LE(remainingAmount - sendAmountState),
+        validFrom: numberToBinUint32LE(validFromState),
+        stateIndex: props.stateIndex + 1
+      }
+
+      if (Object.keys(param).length > 0) {
+        nextContractProps = { ...nextContractProps, ...param }
+      }
+      props.createNextState(nextContractProps)
     }
   
     const [ sendAmountState, setSendAmountState ] = useState(initialSendAmountState)
     const sendAmountInputRef = useRef<any>(null);
-    const onChangeSendAmount = (event) => { setSendAmountState(event.target.value)}
+    const onChangeSendAmount = (event) => {
+      let newSendAmount = event.target.value
+      if (newSendAmount < 546) {
+        setErrorMessage("Spending amount should be greater than 546")
+      }
+      if (newSendAmount > remainingAmount) {
+        setErrorMessage(`Spending amount should be less than ${remainingAmount}`)
+      }
+      setSendAmountState(newSendAmount)
+      createNextState({ remainingAmount: numberToBinUint32LE(remainingAmount - newSendAmount) })
+    }
   
     const [ minerFeeState, setMinerFeeState ] = useState(initialMinerFeeState)
     const minerFeeInputRef = useRef<any>(null);
     const onChangeMinerFee = (event) => { setMinerFeeState(event.target.value)}
 
+    const [ revokeMinerFeeState, setRevokeMinerFeeState ] = useState(initialRevokeMinerFeeState)
+    const revokeMinerFeeInputRef = useRef<any>(null);
+    const onChangeRevokeMinerFee = (event) => {setRevokeMinerFeeState(event.target.value)}
 
-    const revoke = async () => {
+    const revoke = async () => {  
+      const change = agreementContractAmount - revokeMinerFeeState
   
-      const minerFee = 942 // Close to min relay fee of the network.
-      const change = agreementContractAmount - minerFee
-  
-      setMetaData(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} change: ${change}`)
+      setMetaData(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${revokeMinerFeeState} change: ${change}`)
   
       const tx = await agreementContract.functions
       .revoke(new SignatureTemplate(owner))
-      .withHardcodedFee(minerFee)
+      .withHardcodedFee(revokeMinerFeeState)
       .to(defaultAddr, change)
       .send()
   
@@ -101,11 +125,14 @@ export const AgreementContract = (props) => {
     }
   
     const handleSubmit = async () => {
-      const minerFee = 1216 // Close to min relay fee of the network.
-      const sendAmount = 1000;
-      const amountToNextState = agreementContractAmount - minerFee - sendAmount;
-    
-      console.log(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFee} sendAmount: ${sendAmount} amountToNextState: ${amountToNextState}`)
+      const sendAmount = parseInt(sendAmountState);
+      const minerFee = parseInt(minerFeeState);
+      const iAgreementContractAmount = parseInt(agreementContractAmount);
+      const amountToNextState = iAgreementContractAmount - minerFeeState - sendAmountState;
+      console.log(nextAgreementContractAddress)
+      console.log(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFeeState} sendAmount: ${sendAmountState} amountToNextState: ${amountToNextState}`)
+
+      console.log(amountToNextState)
 
       const aggrementTx = await agreementContract.functions
         .spend(
@@ -122,6 +149,8 @@ export const AgreementContract = (props) => {
       console.log(aggrementTx)
       console.log(JSON.stringify(aggrementTx))
     }
+
+    
 
     return (
       <div className="columns is-multiline pb-4">
@@ -158,15 +187,30 @@ export const AgreementContract = (props) => {
               </div>
             </div>
 
-            <div className="field pb-3" style={{ borderBottom: '2px solid rgb(30, 32, 35)'}}>
+            <div className="field pb-3 pt-3" style={{ borderBottom: '2px solid rgb(30, 32, 35)'}}>
               <div className="columns">
 
                 <div className="column">
-                  <label className="label has-text-grey-lighter">Epoch</label>
+                  <div className="columns pl-3">
+                    <label className="label has-text-grey-lighter">Epoch</label>
+                    <div className="dropdown is-hoverable">
+                      <div className="dropdown-trigger has-text-centered is-centered">
+                        <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
+                    </div>
+                    <div className="dropdown-menu" id="dropdown-menu4" role="menu">
+                      <div className="dropdown-content">
+                        <div className="dropdown-item">
+                          <p>Time for next epoch to start.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
                   <div className="control">
                     <input value={epochState}
                       onChange={onChangeEpoch}
                       ref={epochInputRef}
+                      disabled={props.stateIndex !== 0}
                       className="input has-text-grey-light has-background-dark"
                       style={{  }}
                       type="text"
@@ -176,11 +220,26 @@ export const AgreementContract = (props) => {
                 </div>
 
                 <div className="column">
-                  <label className="label has-text-grey-lighter">MaxAmount/Epoch</label>
+                  <div className="columns pl-3">
+                    <label className="label has-text-grey-lighter">MaxAmount/Epoch</label>
+                    <div className="dropdown is-hoverable">
+                      <div className="dropdown-trigger has-text-centered is-centered">
+                        <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
+                    </div>
+                    <div className="dropdown-menu" id="dropdown-menu4" role="menu">
+                      <div className="dropdown-content">
+                        <div className="dropdown-item">
+                          <p>Maximum amount spendable per epoch.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
                   <div className="control">
                     <input value={maxAmountPerEpochState}
                       onChange={onChangeMaxAmountPerEpoch}
                       ref={maxAmountPerEpochInputRef}
+                      disabled={props.stateIndex !== 0}
                       className="input has-text-grey-light has-background-dark"
                       style={{  }}
                       type="text"
@@ -192,9 +251,24 @@ export const AgreementContract = (props) => {
 
               <div className="columns">
                 <div className="column">
-                  <label className="label has-text-grey-lighter">Remaining Time</label>
+                  <div className="columns pl-3">
+                    <label className="label has-text-grey-lighter">Remaining Time</label>
+                    <div className="dropdown is-hoverable">
+                      <div className="dropdown-trigger has-text-centered is-centered">
+                        <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
+                    </div>
+                    <div className="dropdown-menu" id="dropdown-menu4" role="menu">
+                      <div className="dropdown-content">
+                        <div className="dropdown-item">
+                          <p>Current Valid From - Last Valid From = Remaining Time</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
                   <div className="control">
                     <input value={remainingTimeState}
+                      disabled={true}
                       onChange={onChangeRemainingTime}
                       ref={remainingTimeInputRef}
                       className="input has-text-grey-light has-background-dark"
@@ -205,16 +279,29 @@ export const AgreementContract = (props) => {
                 </div>
 
                 <div className="column">
-                  <label className="label has-text-grey-lighter">Remaining Amount</label>
-                  <div className="control">
-                    <input value={remainingAmountState}
-                      onChange={onChangeRemainingAmount}
-                      ref={remainingAmountInputRef}
-                      className="input has-text-grey-light has-background-dark"
-                      type="text"
-                      placeholder="Remaining Amount"
-                    />
+                  <div className="columns pl-3">
+                    <label className="label has-text-grey-lighter">Remaining Spendable Amount</label>
+                    <div className="dropdown is-hoverable">
+                      <div className="dropdown-trigger has-text-centered is-centered">
+                        <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
+                    </div>
+                    <div className="dropdown-menu" id="dropdown-menu4" role="menu">
+                      <div className="dropdown-content">
+                        <div className="dropdown-item">
+                          <p>Balance - Spend Amount = Remaining Amount</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
+                </div>
+                <div className="control">
+                  <input value={remainingAmount}
+                    disabled={true}
+                    className="input has-text-grey-light has-background-dark"
+                    type="text"
+                    placeholder="Remaining Amount"
+                  />
+                </div>
                 </div>
               </div>
 
@@ -243,58 +330,119 @@ export const AgreementContract = (props) => {
             </div>
           </div>
 
-          <div className="title has-text-white is-4 pt-2">{'> Spend'}</div>
-
           <div className="columns">
-            <div className="column">
-              <label className="label has-text-grey-lighter">Amount</label>
-              <div className="control">
-                <input value={sendAmountState}
-                  onChange={onChangeSendAmount}
-                  ref={sendAmountInputRef}
-                  className="input has-text-grey-light has-background-dark"
-                  type="text"
-                  placeholder="Send Amount"
-                />
-              </div>
-            </div>
+            <div className="column" style={{ borderBottom: '2px solid rgb(30, 32, 35)' }}>
+              <div className="columns is-4 mt-2">
+                <div className="title has-text-white is-4 pt-2">{'> Spend'}</div>
+                <div className="dropdown is-hoverable">
+                    <div className="dropdown-trigger has-text-centered is-centered">
+                      <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
+                    </div>
+                    <div className="dropdown-menu" id="dropdown-menu4" role="menu">
+                      <div className="dropdown-content">
+                        <div className="dropdown-item">
+                          <p>Spend invoked by Payee. The amount should be less than the `MaxAmount/Epoch` and
+                            `Remaining Amount`
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                
+                </div>
+              <div className="columns">
+                <div className="column">
+                  <label className="label has-text-grey-lighter">Amount</label>
+                  <div className="control">
+                    <input value={sendAmountState}
+                      onChange={onChangeSendAmount}
+                      ref={sendAmountInputRef}
+                      className="input has-text-grey-light has-background-dark"
+                      type="text"
+                      placeholder="Send Amount"
+                    />
+                  </div>
+                </div>
 
-            <div className="column">
-              <label className="label has-text-grey-lighter">Miner Fee</label>
-              <div className="control">
-                <input value={minerFeeState}
-                  onChange={onChangeMinerFee}
-                  ref={minerFeeInputRef}
-                  className="input has-text-grey-light has-background-dark"
-                  type="text"
-                  placeholder="Miner Fee"
-                />
+                <div className="column">
+                  <label className="label has-text-grey-lighter">Miner Fee</label>
+                  <div className="control">
+                    <input value={minerFeeState}
+                      onChange={onChangeMinerFee}
+                      ref={minerFeeInputRef}
+                      className="input has-text-grey-light has-background-dark"
+                      type="text"
+                      placeholder="Miner Fee"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="field">
-            <label className="label has-text-grey-lighter">Metadata</label>
-            <div className="control">
-              <p className="content has-text-grey-light">{metaData}</p>
-            </div>
-          </div>
-    
-          <div className="columns">
-            <div className="column control is-10">
               <button
                 onClick={handleSubmit}
                 style={{ backgroundColor: 'rgb(30, 32, 35)', borderWidth: 0 }}
                 className="button has-text-white">
                   Submit Transaction
               </button>
-              <button onClick={revoke} className="ml-6 button has-text-white" style={{ backgroundColor: 'rgb(30, 32, 35)', borderWidth: 0 }}>Revoke</button>
+
             </div>
-            <div className="column has-text-right">
-              <button onClick={createNextState} className="button has-text-white" style={{ backgroundColor: 'rgb(30, 32, 35)' }}>+</button>
+
+            <div className="column" style={{ borderBottom: '2px solid rgb(30, 32, 35)' }}>
+              <div className="columns is-4 mt-2">
+                <div className="title has-text-white is-4 pt-2">{'> Revoke'}</div>
+                <div className="dropdown is-hoverable">
+                  <div className="dropdown-trigger has-text-centered is-centered">
+                    <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
+                  </div>
+                  <div className="dropdown-menu" id="dropdown-menu4" role="menu">
+                    <div className="dropdown-content">
+                      <div className="dropdown-item">
+                        <p>Revoke invoked by Payer, has less miner fee.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column">
+                  <label className="label has-text-grey-lighter">Miner Fee</label>
+                  <div className="control">
+                    <input value={revokeMinerFeeState}
+                      onChange={onChangeRevokeMinerFee}
+                      ref={revokeMinerFeeInputRef}
+                      className="input has-text-grey-light has-background-dark"
+                      type="text"
+                      placeholder="Miner Fee"
+                    />
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={revoke}
+                className="button has-text-white"
+                style={{ backgroundColor: 'rgb(30, 32, 35)', borderWidth: 0 }}>
+                  Revoke
+              </button>
             </div>
           </div>
-        </div>
+
+            <div className="field">
+              <label className="label has-text-grey-lighter">Metadata</label>
+              <div className="control">
+                <p className="content has-text-grey-light">{metaData}</p>
+              </div>
+            </div>
+
+            <div className="columns">
+              <div className="column has-text-right">
+                <button onClick={createNextState} className="button has-text-white" style={{ backgroundColor: 'rgb(30, 32, 35)' }}>+</button>
+              </div>
+            </div>
+            <div class="notification is-danger">
+              Errors (If any): {errorMessage}
+            </div>
+          </div>
+        
         </div>
 
         <div className="columns column is-full is-centered">
