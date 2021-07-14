@@ -11,16 +11,6 @@ import { BITBOX } from 'bitbox-sdk';
 
 const bitbox = new BITBOX();
 
-// payerPk
-// payeePk
-// epoch
-// maxAmountPerEpoch
-// remainingTime
-// remainingAmount
-// validFrom
-// agreementContract
-// agreementContractAmount
-// agreementScriptHash
 
 export class AgreementContractWrapper extends React.Component<any, any> {
 
@@ -75,17 +65,12 @@ export class AgreementContractWrapper extends React.Component<any, any> {
       this.setState((prevState) => ({
         contracts: [...newContractState]
       }))
+
     }).catch((e) => {
       console.log(e)
     })
-    // const n2b = numberToBinUint32LE(695440)
-    // const b2h = binToHex(n2b)
-    // console.log(b2h)
-    // const h2b = hexToBin(b2h)
-    // console.log(h2b)
-    // console.log(hexToNum('1039', 2, false))
-    // console.log(hexToNum('2202', 2))
-    console.log(hexToNum('649d0a00'))
+
+    // console.log(hexToNum('649d0a00'))
   }
 
   createNextState = async (params) => {
@@ -192,25 +177,18 @@ export class AgreementContractWrapper extends React.Component<any, any> {
         agreementScriptHash: nextAgreementRes[2]
       }
       contracts[stateIndex+1] = nextStateContract
-      console.log("Inside if")
     }
 
     console.log(contracts)
-    // await this.createNextState(currentContract)
     // @ts-ignore
     this.setState(() => ({
       contracts: [...contracts]
-    }), async () => {
-        //await this.createNextState(currentContract);
-    })
-
-    // this.createNextState(currentContract)
+    }))
   }
 
   renderContracts = () => {
     // @ts-ignore
     const { contracts } = this.state;
-    // @ts-ignore
     return contracts.map((contract, index) => {
       console.log("Rerendering both", contract)
       return (

@@ -1,17 +1,17 @@
-import React from 'react';
-
 import { getTemplateContract } from '../contracts';
 import { numberToBinUint32LE } from '@bitauth/libauth';
 import { buildLockScriptHash } from '../utils/helpers';
 
-import { getOwnerWallet } from '../wallet';
+import { getPayerWallet, getPayeeWallet } from '../wallet';
 
 // import { refund } from '../utils';
 // refund()
 
 export const defaultAddr = 'bitcoincash:qz2g9hg86tpdk0rhk9qg45s6nj3xqqerkvcmz5rrq0'
 // eslint-disable-next-line
-export const [ owner, ownerPk, ownerPkh, ownerAddr ] = getOwnerWallet()
+export const [ payer, payerPk, payerPkh, payerAddr ] = getPayerWallet()
+export const [ payee, payeePk, payeePkh, payeeAddr ] = getPayeeWallet()
+
 
 // Block Height
 const currentTimeParameter = 695651;
@@ -24,8 +24,8 @@ const remainingTimeBlockParameter =  6 // 6 blocks
 
 export const initialAmount = 3000
 
-export const payerPk = ownerPk;
-export const payeePk = ownerPk;
+// export const payerPk = ownerPk;
+// export const payeePk = ownerPk;
 // const payerAddr = bitbox.ECPair.toCashAddress(owner);
 // const payeeAddr = bitbox.ECPair.toCashAddress(owner);
 
@@ -59,25 +59,4 @@ export const getContractInfo = async (params, contractFile) => {
   }
 
   return [contract, amount, completeLockScript]
-}
-
-
-export const CommonComponent = () => {
-
-  return (
-    <div className="box mr-2">
-      <div className="field">
-        <label className="label">Payer Addr</label>
-        <div className="control">
-            {ownerAddr}
-        </div>
-      </div>
-      <div className="field">
-        <label className="label">Payee Addr</label>
-        <div className="control">
-            {ownerAddr}
-        </div>
-      </div>
-    </div>
-    )
 }

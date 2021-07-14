@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SignatureTemplate } from 'cashscript';
-import { defaultAddr, owner, ownerAddr } from './common';
+import { defaultAddr, payer, payerAddr } from './common';
 import { binToHex, hexToBin, numberToBinUint32LE } from '@bitauth/libauth';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExternalLinkAlt, faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
 import { binToNum } from '../utils/helpers';
-import { truncate } from '../utils';
 
 const initialSendAmountState = 1000
 const initialMinerFeeState = 1216 // Close to min relay fee of the network.
@@ -20,9 +19,6 @@ export const AgreementContract = (props) => {
       agreementScriptHash,
       nextAgreementContractAddress
     } = props;
-
-    console.log(props);
-
 
     const remainingAmount = binToNum(props?.remainingAmount);
 
@@ -115,7 +111,7 @@ export const AgreementContract = (props) => {
       setMetaData(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${revokeMinerFeeState} change: ${change}`)
   
       const tx = await agreementContract.functions
-      .revoke(new SignatureTemplate(owner))
+      .revoke(new SignatureTemplate(payer))
       .withHardcodedFee(revokeMinerFeeState)
       .to(defaultAddr, change)
       .send()
@@ -136,12 +132,12 @@ export const AgreementContract = (props) => {
 
       const aggrementTx = await agreementContract.functions
         .spend(
-          new SignatureTemplate(owner),
+          new SignatureTemplate(payer),
           amountToNextState,
           sendAmount
         )
         .withHardcodedFee(minerFee)
-        .to(ownerAddr, sendAmount)
+        .to(payerAddr, sendAmount)
         .to(nextAgreementContractAddress, amountToNextState)
         // .build()
         .send();
@@ -438,8 +434,8 @@ export const AgreementContract = (props) => {
                 <button onClick={createNextState} className="button has-text-white" style={{ backgroundColor: 'rgb(30, 32, 35)' }}>+</button>
               </div>
             </div>
-            <div class="notification is-danger">
-              Errors (If any): {errorMessage}
+            <div class="notification">
+              Current/Prev Error: {errorMessage}
             </div>
           </div>
         
