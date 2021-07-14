@@ -434,7 +434,7 @@ export const AgreementContract = (props) => {
                 <button onClick={createNextState} className="button has-text-white" style={{ backgroundColor: 'rgb(30, 32, 35)' }}>+</button>
               </div>
             </div>
-            <div class="notification">
+            <div className="notification">
               Current/Prev Error: {errorMessage}
             </div>
           </div>

@@ -190,7 +190,6 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     // @ts-ignore
     const { contracts } = this.state;
     return contracts.map((contract, index) => {
-      console.log("Rerendering both", contract)
       return (
         <AgreementContract
           key={index}
