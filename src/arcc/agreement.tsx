@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { SignatureTemplate } from 'cashscript';
-import { defaultAddr, payer, payee, payeeAddr } from './common';
+import { defaultAddr, payer, payee, payerAddr, payeeAddr } from './common';
 import { InfoComponent } from './info';
 import { HoverableHeading, HoverableSubHeading } from './hoverable';
-import { binToHex, hexToBin, numberToBinUint32LE } from '@bitauth/libauth';
+import { binToHex, numberToBinUint32LE } from '@bitauth/libauth';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExternalLinkAlt, faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
 import { binToNum } from '../utils/helpers';
 
 const initialSendAmountState = 1000
 const initialMinerFeeState = 1216 // Close to min relay fee of the network.
-const initialRevokeMinerFeeState = 942
+const initialRevokeMinerFeeState = 542
+
 
 export const AgreementContract = (props) => {
 
@@ -112,6 +113,11 @@ export const AgreementContract = (props) => {
   
       setMetaData(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${revokeMinerFeeState} change: ${change}`)
   
+      if (change < 546){
+        setErrorMessage("Revokable amount should be greater than 546")
+        return
+      }
+
       const tx = await agreementContract.functions
       .revoke(new SignatureTemplate(payer))
       .withHardcodedFee(revokeMinerFeeState)
@@ -119,7 +125,8 @@ export const AgreementContract = (props) => {
       .send()
   
       console.log(tx)
-      console.log(JSON.stringify(tx))  
+      console.log(JSON.stringify(tx))
+
     }
   
     const handleSubmit = async () => {
@@ -127,25 +134,38 @@ export const AgreementContract = (props) => {
       const minerFee = parseInt(minerFeeState);
       const iAgreementContractAmount = parseInt(agreementContractAmount);
       const amountToNextState = iAgreementContractAmount - minerFeeState - sendAmountState;
-      console.log(nextAgreementContractAddress)
-      console.log(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFeeState} sendAmount: ${sendAmountState} amountToNextState: ${amountToNextState}`)
+      setMetaData(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFeeState} sendAmount: ${sendAmountState} amountToNextState: ${amountToNextState}`)
 
-      console.log(amountToNextState)
+      if (!nextAgreementContractAddress){
+        setErrorMessage("Next contract state is not derived. Press the + icons on the bottom right.")
+        return
+      }
+
+      if (amountToNextState < 546) {
+        setErrorMessage("Amount to next state should be greater than 546. amountToNextState = balance - minerFee - sendAmount")
+        return
+      }
+
+      if (sendAmount < 546) {
+        setErrorMessage("Spending amount to payee should be greater than 546")
+        return
+      }
 
       const aggrementTx = await agreementContract.functions
-        .spend(
-          new SignatureTemplate(payee),
-          amountToNextState,
-          sendAmount
-        )
-        .withHardcodedFee(minerFee)
-        .to(payeeAddr, sendAmount)
-        .to(nextAgreementContractAddress, amountToNextState)
-        // .build()
-        .send();
+      .spend(
+        new SignatureTemplate(payee),
+        amountToNextState,
+        sendAmount
+      )
+      .withHardcodedFee(minerFee)
+      .to(payeeAddr, sendAmount)
+      .to(nextAgreementContractAddress, amountToNextState)
+      // .build()
+      .send();
 
       console.log(aggrementTx)
       console.log(JSON.stringify(aggrementTx))
+
     }
 
     
@@ -188,6 +208,24 @@ export const AgreementContract = (props) => {
               <div className="control has-text-grey-light">
                 0x{binToHex(props.payeePk)}
               </div>
+            </div>
+
+            <div className="columns column mb-0 pb-0">
+              <label className="label has-text-grey-lighter pr-3">Payer Address</label>
+              <label className="label has-text-grey-light">{payerAddr}
+                <a target='_' href={`https://explorer.bitcoin.com/bch/address/${payerAddr}`}>
+                  <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+                </a>
+              </label>
+            </div>
+
+            <div className="columns column mb-0 pb-0">
+              <label className="label has-text-grey-lighter pr-3">Payee Address</label>
+              <label className="label has-text-grey-light">{payeeAddr}
+                <a target='_' href={`https://explorer.bitcoin.com/bch/address/${payeeAddr}`}>
+                  <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+                </a>
+              </label>
             </div>
 
             <div className="field pb-3 pt-3" style={{ borderBottom: '2px solid rgb(30, 32, 35)'}}>
@@ -345,7 +383,7 @@ export const AgreementContract = (props) => {
               <div className="columns column mt-3">
                 <label className="label has-text-grey-lighter pr-3">Amount To Next State</label>
                 <div className="control has-text-grey-light">
-                    {agreementContractAmount - sendAmountState - minerFeeState}
+                    <code>{agreementContractAmount - sendAmountState - minerFeeState}</code>
                 </div>
               </div>
 
@@ -385,7 +423,7 @@ export const AgreementContract = (props) => {
           <div className="field">
               <HoverableSubHeading
                   title={'Amount to next state'}
-                  info={"If the next contract address is undefined then press the + button on the bottom right. Warning: Next contract state with amount less than 0 not be spendable by payee."}
+                  info={"If the next contract address is undefined then press the + button on the bottom right. Warning: Next contract state with amount less than 0 will not be spendable by payee."}
                 />
               <div className="control">
                 <p className="content has-text-grey-light">{nextAgreementContractAddress}</p>

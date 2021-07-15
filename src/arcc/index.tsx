@@ -1,6 +1,5 @@
 import React from 'react';
-import { binToHex, hexToBin, numberToBinUint32LE } from '@bitauth/libauth';
-import { hexToNum } from '../utils/helpers';
+import { numberToBinUint32LE } from '@bitauth/libauth';
 import { AgreementContract } from './agreement';
 import {
   getContractInfo,
@@ -8,10 +7,11 @@ import {
   payeePk,
 } from './common';
 import { BITBOX } from 'bitbox-sdk';
+// import { hexToNum } from '../utils/helpers';
+// console.log(hexToNum("01000000"))
 
 const bitbox = new BITBOX();
 
-console.log(hexToNum("01000000"))
 
 export class AgreementContractWrapper extends React.Component<any, any> {
 
@@ -70,8 +70,6 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     }).catch((e) => {
       console.log(e)
     })
-
-    // console.log(hexToNum('649d0a00'))
   }
 
   createNextState = async (params) => {

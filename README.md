@@ -8,8 +8,8 @@ ARCC, a Bitcoin Cash Smart Contract Chain System allows the payer to take back t
 There can be a range of applications/mechanisms possible including but not limited to, Streaming Services, Pay as you use, Recurring payments, Milestone based payouts, Project funding, Pocket money etc.
 
 
+![arcc_ss](https://user-images.githubusercontent.com/7335120/125753256-3153b572-a68b-4a70-934f-2b744f85070b.png)
 
-<img width="1440" alt="Screenshot 2021-07-12 at 3 26 57 PM" src="https://user-images.githubusercontent.com/7335120/125268752-a535e580-e325-11eb-8ea7-d53715ea318a.png">
 
 <h3>Whitepaper</h3>
 
