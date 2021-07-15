@@ -11,6 +11,7 @@ import { BITBOX } from 'bitbox-sdk';
 
 const bitbox = new BITBOX();
 
+console.log(hexToNum("01000000"))
 
 export class AgreementContractWrapper extends React.Component<any, any> {
 
@@ -77,9 +78,17 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     // @ts-ignore
     const nextState = params.stateIndex;
     const blockCountNum = await bitbox.Blockchain.getBlockCount()
-    const remainingTimeNum = (blockCountNum - parseInt(params.validFrom)) % parseInt(params.epoch)
+    console.log(blockCountNum);
+
+    let remainingTimeNum = (blockCountNum - parseInt(params.validFrom)) % parseInt(params.epoch)
+    if (remainingTimeNum === 0){
+      remainingTimeNum = parseInt(params.epoch)
+    }
     const remainingTime = numberToBinUint32LE(remainingTimeNum)
     const validFrom = numberToBinUint32LE(blockCountNum)
+    console.log("Next State: ")
+    console.log("blockCountNum", blockCountNum);
+    console.log("remainingTime", remainingTime);
 
     const agreementContractParams = [
       params.payerPk,
@@ -190,10 +199,16 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     // @ts-ignore
     const { contracts } = this.state;
     return contracts.map((contract, index) => {
+      let nextAgreementContractAddress;
+      if (contracts[index +1]){
+        nextAgreementContractAddress = contracts[index + 1]?.agreementContract?.address
+      }
+      
       return (
         <AgreementContract
           key={index}
           stateIndex={index}
+          nextAgreementContractAddress={nextAgreementContractAddress}
           onChangeContractDetails={this.onChangeContractDetails}
           createNextState={this.createNextState}
           {...contract}>

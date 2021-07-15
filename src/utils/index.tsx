@@ -43,7 +43,7 @@ export const refund = async () => {
   const cashAddr = bitbox.ECPair.toCashAddress(user);
   console.log(cashAddr)
   const NETWORK = 'mainnet'
-  const RECV_ADDR = 'bitcoincash:qz2g9hg86tpdk0rhk9qg45s6nj3xqqerkvcmz5rrq0'
+  const RECV_ADDR = 'bitcoincash:qrmz9ktxaptp8q8zacy8f6vftq7793cavvnwqjvtru'
 
   let sendAmount = 0
   const inputs = []

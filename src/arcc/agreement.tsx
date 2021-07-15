@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SignatureTemplate } from 'cashscript';
-import { defaultAddr, payer, payerAddr } from './common';
+import { defaultAddr, payer, payee, payeeAddr } from './common';
+import { InfoComponent } from './info';
+import { HoverableHeading, HoverableSubHeading } from './hoverable';
 import { binToHex, hexToBin, numberToBinUint32LE } from '@bitauth/libauth';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -132,12 +134,12 @@ export const AgreementContract = (props) => {
 
       const aggrementTx = await agreementContract.functions
         .spend(
-          new SignatureTemplate(payer),
+          new SignatureTemplate(payee),
           amountToNextState,
           sendAmount
         )
         .withHardcodedFee(minerFee)
-        .to(payerAddr, sendAmount)
+        .to(payeeAddr, sendAmount)
         .to(nextAgreementContractAddress, amountToNextState)
         // .build()
         .send();
@@ -153,8 +155,13 @@ export const AgreementContract = (props) => {
         <div className="columns column is-full is-centered">
         <div className="box is-two-thirds column" style={{ backgroundColor: 'rgb(42, 45, 47)' }}>
   
-          <div className="title has-text-white">Contract State-{props.stateIndex}</div>
-
+        <div className="columns">
+          <div className="title has-text-white pl-3 pt-3">Contract State-{props.stateIndex}</div>
+            <div className="column has-text-right">
+              <InfoComponent/>
+            </div>
+        </div>
+          
           <div className="mb-2 pb-3" style={{ borderBottom: '2px solid rgb(30, 32, 35)' }}>
             <label className="label has-text-grey-lighter">{agreementContract?.address}
               <a target='_' href={`https://explorer.bitcoin.com/bch/address/${agreementContract?.address}`}>
@@ -188,19 +195,10 @@ export const AgreementContract = (props) => {
 
                 <div className="column">
                   <div className="columns pl-3">
-                    <label className="label has-text-grey-lighter">Epoch</label>
-                    <div className="dropdown is-hoverable">
-                      <div className="dropdown-trigger has-text-centered is-centered">
-                        <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
-                    </div>
-                    <div className="dropdown-menu" id="dropdown-menu4" role="menu">
-                      <div className="dropdown-content">
-                        <div className="dropdown-item">
-                          <p>Time for next epoch to start.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    <HoverableSubHeading
+                      title={'Epoch'}
+                      info={"Time frame in block height."}
+                    />
                   </div>
                   <div className="control">
                     <input value={epochState}
@@ -217,19 +215,10 @@ export const AgreementContract = (props) => {
 
                 <div className="column">
                   <div className="columns pl-3">
-                    <label className="label has-text-grey-lighter">MaxAmount/Epoch</label>
-                    <div className="dropdown is-hoverable">
-                      <div className="dropdown-trigger has-text-centered is-centered">
-                        <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
-                    </div>
-                    <div className="dropdown-menu" id="dropdown-menu4" role="menu">
-                      <div className="dropdown-content">
-                        <div className="dropdown-item">
-                          <p>Maximum amount spendable per epoch.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    <HoverableSubHeading
+                      title={'MaxAmount/Epoch'}
+                      info={"Maximum amount spendable per epoch."}
+                    />
                   </div>
                   <div className="control">
                     <input value={maxAmountPerEpochState}
@@ -248,19 +237,10 @@ export const AgreementContract = (props) => {
               <div className="columns">
                 <div className="column">
                   <div className="columns pl-3">
-                    <label className="label has-text-grey-lighter">Remaining Time</label>
-                    <div className="dropdown is-hoverable">
-                      <div className="dropdown-trigger has-text-centered is-centered">
-                        <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
-                    </div>
-                    <div className="dropdown-menu" id="dropdown-menu4" role="menu">
-                      <div className="dropdown-content">
-                        <div className="dropdown-item">
-                          <p>Current Valid From - Last Valid From = Remaining Time</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    <HoverableSubHeading
+                      title={'Remaining Time'}
+                      info={"Current Valid From - Last Valid From = Remaining Time"}
+                    />
                   </div>
                   <div className="control">
                     <input value={remainingTimeState}
@@ -276,28 +256,19 @@ export const AgreementContract = (props) => {
 
                 <div className="column">
                   <div className="columns pl-3">
-                    <label className="label has-text-grey-lighter">Remaining Spendable Amount</label>
-                    <div className="dropdown is-hoverable">
-                      <div className="dropdown-trigger has-text-centered is-centered">
-                        <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
-                    </div>
-                    <div className="dropdown-menu" id="dropdown-menu4" role="menu">
-                      <div className="dropdown-content">
-                        <div className="dropdown-item">
-                          <p>Balance - Spend Amount = Remaining Amount</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="control">
-                  <input value={remainingAmount}
-                    disabled={true}
-                    className="input has-text-grey-light has-background-dark"
-                    type="text"
-                    placeholder="Remaining Amount"
+                  <HoverableSubHeading
+                    title={'Remaining Spendable Amount'}
+                    info={"Revoke invoked by Payer, has less miner fee."}
                   />
-                </div>
+                  </div>
+                  <div className="control">
+                    <input value={remainingAmount}
+                      disabled={true}
+                      className="input has-text-grey-light has-background-dark"
+                      type="text"
+                      placeholder="Remaining Amount"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -329,23 +300,12 @@ export const AgreementContract = (props) => {
           <div className="columns">
             <div className="column" style={{ borderBottom: '2px solid rgb(30, 32, 35)' }}>
               <div className="columns is-4 mt-2 pl-3">
-                <div className="title has-text-white is-4 pt-2">{'> Spend'}</div>
-                <div className="dropdown is-hoverable">
-                    <div className="dropdown-trigger has-text-centered is-centered">
-                      <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
-                    </div>
-                    <div className="dropdown-menu" id="dropdown-menu4" role="menu">
-                      <div className="dropdown-content">
-                        <div className="dropdown-item">
-                          <p>Spend invoked by Payee. The amount should be less than the `MaxAmount/Epoch` and
-                            `Remaining Amount`
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                
-                </div>
+                <HoverableHeading
+                  title={'> Spend'}
+                  info={"Spend invoked by Payee. The amount should be less than the `MaxAmount/Epoch` and `Remaining Amount`"}
+                />
+              </div>
+
               <div className="columns">
                 <div className="column">
                   <label className="label has-text-grey-lighter">Amount</label>
@@ -372,6 +332,7 @@ export const AgreementContract = (props) => {
                     />
                   </div>
                 </div>
+                
               </div>
 
               <button
@@ -381,23 +342,22 @@ export const AgreementContract = (props) => {
                   Submit Transaction
               </button>
 
+              <div className="columns column mt-3">
+                <label className="label has-text-grey-lighter pr-3">Amount To Next State</label>
+                <div className="control has-text-grey-light">
+                    {agreementContractAmount - sendAmountState - minerFeeState}
+                </div>
+              </div>
+
+
             </div>
 
             <div className="column" style={{ borderBottom: '2px solid rgb(30, 32, 35)' }}>
               <div className="columns is-4 mt-2">
-                <div className="title has-text-white is-4 pt-2">{'> Revoke'}</div>
-                <div className="dropdown is-hoverable">
-                  <div className="dropdown-trigger has-text-centered is-centered">
-                    <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
-                  </div>
-                  <div className="dropdown-menu" id="dropdown-menu4" role="menu">
-                    <div className="dropdown-content">
-                      <div className="dropdown-item">
-                        <p>Revoke invoked by Payer, has less miner fee.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <HoverableHeading
+                  title={'> Revoke'}
+                  info={"Revoke invoked by Payer, has less miner fee."}
+                />
               </div>
               <div className="columns">
                 <div className="column">
@@ -422,12 +382,16 @@ export const AgreementContract = (props) => {
             </div>
           </div>
 
-            <div className="field">
-              <label className="label has-text-grey-lighter">Metadata</label>
+          <div className="field">
+              <HoverableSubHeading
+                  title={'Amount to next state'}
+                  info={"If the next contract address is undefined then press the + button on the bottom right. Warning: Next contract state with amount less than 0 not be spendable by payee."}
+                />
               <div className="control">
-                <p className="content has-text-grey-light">{metaData}</p>
+                <p className="content has-text-grey-light">{nextAgreementContractAddress}</p>
               </div>
             </div>
+
 
             <div className="columns">
               <div className="column has-text-right">
@@ -437,8 +401,15 @@ export const AgreementContract = (props) => {
             <div className="notification">
               Current/Prev Error: {errorMessage}
             </div>
+
+            <div className="field">
+              <label className="label has-text-grey-lighter">Metadata</label>
+              <div className="control">
+                <p className="content has-text-grey-light">{metaData}</p>
+              </div>
+            </div>
           </div>
-        
+
         </div>
 
         <div className="columns column is-full is-centered">

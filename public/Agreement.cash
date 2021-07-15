@@ -95,13 +95,7 @@ contract Agreement(
             newRemainingTime = sameEpoch - timeSinceLastEpoch;
         } else {
             newRemainingTime = newRemainingTime - passedTime;
-            // If this is less than the dust limit than the user cannot spend that amount.
-            // Checking here because of this check is applied earlier then when a new epoch is
-            // started the users won't be able to spend bigger amounts because of this constraints.
-            // require(newRemainingAmount >= 0);
         }
-
-        // require(within(newRemainingAmount, 0, sameMaxAmountPerEpoch + 1));
 
         // Create a new contract with timelock as the current or provided locktime during contract building.
         // Note that the constructor parameters are added in the reverse order.
