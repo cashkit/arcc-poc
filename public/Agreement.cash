@@ -44,17 +44,16 @@ contract Agreement(
 
         // Only necessary casting used to reduce size. All other casting which either increase
         // the number of operations or keep the size same are ignored.
-        int sameEpoch = int(epoch);
         int sameMaxAmountPerEpoch = int(maxAmountPerEpoch);
-
-        // Amount based checking.
         require(sameMaxAmountPerEpoch >= 546);
         require(within(amount, 546, sameMaxAmountPerEpoch + 1));
 
         // Time based checking
         // Make sure that we are not spending a contract with a blockheight less than the current height.
+        int sameEpoch = int(epoch);
         require(sameEpoch >= 0);
-        require(tx.time >= int(validFrom));
+
+        // require(tx.time >= int(validFrom));
         int passedTime = int(tx.locktime) - int(validFrom);
         require(passedTime >= 0);
 
@@ -62,6 +61,7 @@ contract Agreement(
         require(within(newRemainingTime, 0, sameEpoch + 1));
 
         int newRemainingAmount = int(remainingAmount) - amount;
+        require(within(newRemainingAmount, 0, sameMaxAmountPerEpoch + 1));
 
         // This `if` statement will execute in the following cases:
         // Case 1: Epoch is set to 0 which means the remainingTime will also be 0(given the initial condition was remainingTime = epoch = 0)
@@ -78,7 +78,6 @@ contract Agreement(
         // Case 3: Payee is making a transaction within an epoch window but it's already half way through.
         if (passedTime >= newRemainingTime){
             newRemainingAmount = sameMaxAmountPerEpoch - amount;
-            // This is just a placeholder value the real value will be updated in the code below.
             int timeSinceLastEpoch = 0;
             // Case 1
             if (sameEpoch == 0) {
@@ -99,8 +98,10 @@ contract Agreement(
             // If this is less than the dust limit than the user cannot spend that amount.
             // Checking here because of this check is applied earlier then when a new epoch is
             // started the users won't be able to spend bigger amounts because of this constraints.
-            require(newRemainingAmount >= 0);
+            // require(newRemainingAmount >= 0);
         }
+
+        // require(within(newRemainingAmount, 0, sameMaxAmountPerEpoch + 1));
 
         // Create a new contract with timelock as the current or provided locktime during contract building.
         // Note that the constructor parameters are added in the reverse order.
