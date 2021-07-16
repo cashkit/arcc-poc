@@ -124,7 +124,7 @@ export class AgreementContractWrapper extends React.Component<any, any> {
       // @ts-ignore
       this.setState(() => ({
         contracts: [...contracts]
-      }), () => {console.log("Updatin?")})
+      }))
     }).catch((e) => {
       console.log(e)
     })

@@ -10,7 +10,7 @@ import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
 import { binToNum } from '../utils/helpers';
 
 const initialSendAmountState = 1000
-const initialMinerFeeState = 1216 // Close to min relay fee of the network.
+const initialMinerFeeState = 1116 // Close to min relay fee of the network.
 const initialRevokeMinerFeeState = 542
 
 
@@ -137,7 +137,7 @@ export const AgreementContract = (props) => {
       setMetaData(`Values in sats: Input agreementContractAmount: ${agreementContractAmount}, Miner Fee: ${minerFeeState} sendAmount: ${sendAmountState} amountToNextState: ${amountToNextState}`)
 
       if (!nextAgreementContractAddress){
-        setErrorMessage("Next contract state is not derived. Press the + icons on the bottom right.")
+        setErrorMessage("Next contract state is not derived. Press the + icon on the bottom right.")
         return
       }
 
