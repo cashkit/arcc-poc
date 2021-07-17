@@ -66,22 +66,18 @@ contract Agreement(
         if (sameEpoch == 0){
             newRemainingTime = 0; // Direct assignment to 0 saves 1 operation.
             newRemainingAmount = sameMaxAmountPerEpoch;
-        }
-        else {
-            if (passedTime >= newRemainingTime) {
-                newRemainingAmount = sameMaxAmountPerEpoch - amount;
-            }
+        } else {
+            if (passedTime >= newRemainingTime) {  newRemainingAmount = sameMaxAmountPerEpoch - amount; }
 
-            int relativePassedTime = passedTime % sameEpoch;
-            if (newRemainingTime >= relativePassedTime) {
-                newRemainingTime = newRemainingTime - relativePassedTime;
+            if (newRemainingTime >= (passedTime % sameEpoch)) {
+                newRemainingTime = newRemainingTime - (passedTime % sameEpoch);
             } else {
-                int temp = relativePassedTime - newRemainingTime;
-                newRemainingTime = sameEpoch - temp;
+                newRemainingTime = sameEpoch - ((passedTime % sameEpoch) - newRemainingTime);
             }
         }
 
         if (newRemainingTime == 0) {
+            // In case of collision.
             newRemainingTime = sameEpoch;
         }
 
