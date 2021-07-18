@@ -3,9 +3,9 @@ pragma cashscript ^0.6.3;
 /**
  * @param: payerPk: Pubkey of the payer.
  * @param: payeePk: Pubkey of the payee.
- * @param: epoch: Each epoch represents a timeframe.
+ * @param: epoch: Each epoch represents a timeframe, epoch = 1 is 1 block.
  * @param: maxAmountPerEpoch: Max amount allowed to be spend by payee per epoch.
- * @param: remainingTime: The remaining time after which a new epoch will get started.
+ * @param: remainingTime: The remaining time after which a new epoch will start.
  * @param: remaningAmount: Remaining amount that can be withdrawan from the contract by payee before next epoch starts.
  * @param: validFrom: The blockheight/time of contract/state creation.
  */
@@ -31,7 +31,7 @@ contract Agreement(
      * Can only be used by payee.
      * @param: payeeSig: signature of the payee.
      * @param: amountToNextState: Amount sent should be greater than 546 i.e the dust limit
-     * otherwise the contract will not execute.
+     * otherwise the next state of contract will not be spendable by payee. Need more funds.
      * @param: amount: Amount to be sent to the payeePkh
      */
     function spend(
@@ -48,8 +48,6 @@ contract Agreement(
         require(sameMaxAmountPerEpoch >= 546);
         require(within(amount, 546, sameMaxAmountPerEpoch + 1));
 
-        // Time based checking
-        // Make sure that we are not spending a contract with a blockheight less than the current height.
         int sameEpoch = int(epoch);
         require(sameEpoch >= 0);
 
@@ -67,6 +65,7 @@ contract Agreement(
             newRemainingTime = 0; // Direct assignment to 0 saves 1 operation.
             newRemainingAmount = sameMaxAmountPerEpoch;
         } else {
+            // This case is valid for the cases where epoch has passed.
             if (passedTime >= newRemainingTime) {  newRemainingAmount = sameMaxAmountPerEpoch - amount; }
 
             if (newRemainingTime >= (passedTime % sameEpoch)) {
