@@ -27,26 +27,18 @@ export const InfoComponent = () => {
               <p className="menu-label">
                   Spending from Current State
                 </p>
-                  <li>Make sure the conditions mentioned under section Amount and Time are fulfilled as once the money is spend to a wrong contract state it can only be taken back by the payer.</li>
+                  <li>Make sure the conditions mentioned under section Amount and Time are fulfilled as once the money is spend to a wrong contract state, it can only be taken back by the Payer.</li>
 
                 <p className="menu-label">
                   Deriving Next State
                 </p>
                   <li>Any changes to the constructor parameters will be responsible for a new and unique contract state.</li>
-                  <li>Once the current contract is funded, the following parameter: <code className="has-text-grey">Amount being spent</code> is responsible for deriving the next state.</li>
-                    <p>However, in order for us to derive the state in the UI, we need to calculate there two
-                    parameters as well: <code className="has-text-grey">Remaining Spendable Amount</code> and <code className="has-text-grey">Remaining Time</code>.</p>
-                    All the other parameters must be kept the same.
-                  <li><code className="has-text-grey">Amount being spent</code> affects the remaining amount spendable
-                    for the next State and hence creates a new address.</li>
-
-                    <p>Depending on when(block height) the current contract is executed the money is spent to a different state because the variables change with time:
-                    <code className="has-text-grey">tx.locktime</code>,
-                    <code className="has-text-grey">newRemainingTime</code> & 
-                    <code className="has-text-grey">newRemainingAmount</code>
-                  <li>If the epoch has passed then the Remaining Amount Spendable will be = Max Amount Per Epoch.</li>
-                
-                </p>
+                  <li>Once the current contract is funded, <code>amount</code>being spent is responsible for deriving the next state but the real state is only derived once a transaction is done from the contract as it is also dependent of <code>remainingTime</code> and <code>locktime</code>.</li>
+                  
+                  <li>In order for us to derive the state in the UI, we need to calculate(predict) these three parameters that the contract would automatically calculate.
+                    <code>Remaining Spendable Amount</code>, <code>Remaining Time</code> and  <code>validFrom</code>.
+                  </li>
+                  <li>All other parameters must be kept the same.</li>
 
                 <p className="menu-label">
                   Amount
@@ -57,6 +49,8 @@ export const InfoComponent = () => {
                   <li><code>remainingAmount</code> should be less than <code>maxAmountPerEpoch</code></li>
                   <li><code>newRemainingAmount</code> should be greater than <code>0</code></li>
                   <li><code>amountToNextState</code> should be greater than <code>546</code></li>
+                  Important Note: <li>If <code>passedTime</code> {`>=`} <code>remainingTime</code> then spendable amount resets to <code>maxAmountPerEpoch</code></li>
+
                 <p className="menu-label">
                   Time
                 </p>
@@ -68,10 +62,12 @@ export const InfoComponent = () => {
                   <p className="menu-label">
                   What happens if I send money to a wrongly configured contract?
                 </p>
-                 At any point in time the payer can spend money in any contract state. The Payer can revoke the money from the contract once all the parameters are mentioned to derive the incorrect contract state.
+                 At any point in time the Payer can spend money from any contract state.
                 <p>
-                  For example: If the incorrect contract had the following constructor parameters: <code className="has-text-grey">Epoch = 1, maxAmountPerEpoch = 300, remainingTime = 1 remainingSpendableAmount = 3000, validFrom = 697241</code>
-                  </p>
+                  For example: If the incorrect contract had the following constructor parameters: <code>Epoch = 1, maxAmountPerEpoch = 300, remainingTime = 1 remainingSpendableAmount = 3000, validFrom = 697241</code>
+                </p>
+                  One only needs to pass the same parameters in order to create the same contract and use the payer's public key to sign a transaction revoking the access from the contract and sending the amount to a different address. 
+                
                   <p>Notice, that the maxAmountPerEpoch is less than the remainingSpendableAmount due to which payee won't be able to spend any amount from the contract. 
                 </p>
 

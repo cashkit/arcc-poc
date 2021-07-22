@@ -31,6 +31,7 @@ export const MESSAGES: any = {
   NEXT_STATE_AMOUNT_TOO_LOW: 'Amount to next state should be greater than 546. amountToNextState = balance - minerFee - sendAmount',
   REVOKE_AMOUNT_TOO_LOW: 'Revokable amount should be greater than 546',
   SPEND_AMOUNT_TOO_LOW: 'Spending amount should be greater than 546',
+  REMAINING_AMOUNT_HIGH: 'Remaining Amount should be less than maxAmountPerEpoch',
   HOVERABLE_EPOCH_TITLE: 'Epoch',
   HOVERABLE_EPOCH_INFO: 'Time frame in block height.',
   HOVERABLE_MAX_AMOUNT_PER_EPOCH_TITLE: 'MaxAmount/Epoch',
@@ -40,7 +41,7 @@ export const MESSAGES: any = {
   HOVERABLE_REMAINING_SPENDABLE_AMOUNT_TITLE: 'Remaining Amount',
   HOVERABLE_REMAINING_SPENDABLE_AMOUNT_INFO: 'Revoke invoked by Payer, has less miner fee.',
   HOVERABLE_SPEND_TITLE: '> Spend',
-  HOVERABLE_SPEND_INFO: 'Spend invoked by Payee. The amount should be less than the `MaxAmount/Epoch` and `Remaining Amount`',
+  HOVERABLE_SPEND_INFO: 'Spend invoked by Payee. The amount should be less than the `MaxAmount/Epoch` and `Remaining Amount` However, If passedTime >= remainingTime than spendable remainingAmount = maxAmountPerEpoch ',
   HOVERABLE_REVOKE_TITLE: '> Revoke',
   HOVERABLE_REVOKE_INFO: 'Revoke invoked by Payer, has less miner fee.',
   HOVERABLE_NEXT_STATE_TITLE: 'Next state',
@@ -97,15 +98,14 @@ export const deriveNextStateValues = async ({
     if (newRemainingTime >= (passedTime % sameEpoch)) {
       newRemainingTime = newRemainingTime - (passedTime % sameEpoch);
     } else {
-        newRemainingTime = sameEpoch - ((passedTime % sameEpoch) - newRemainingTime);
+      newRemainingTime = sameEpoch - ((passedTime % sameEpoch) - newRemainingTime);
     }
   }
 
-  // Un comment if required to put restrictions. Commented out for UX comfort.
-  // if (newRemainingTime === 0) {
-  //   // In case of collision.
-  //   newRemainingTime = sameEpoch;
-  // }
+  if (newRemainingTime === 0) {
+    // In case of collision.
+    newRemainingTime = sameEpoch;
+  }
 
   return {
     validFrom: currentBlockHeight,

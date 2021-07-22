@@ -51,6 +51,7 @@ export class AgreementContract extends React.Component<any, any> {
       isLoading: false,
       metaData: '',
       errorMessage: '',
+      displayNewSpendableAmountInfo: false,
       currentBlockHeight: undefined,
       sendAmountState: props?.initialSendAmountState || initialSendAmountState,
       minerFeeState: props?.initialMinerFeeState || initialMinerFeeState,
@@ -68,7 +69,14 @@ export class AgreementContract extends React.Component<any, any> {
     this.setState({ currentBlockHeight: blockCount })
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentDidUpdate = async (prevProps, prevState, snapshot) => {
+    // const blockCount = await bitbox.Blockchain.getBlockCount()
+    // const passedTime = blockCount - prevProps?.validFrom
+    // if (passedTime >= prevProps?.remainingTime && prevProps.stateIndex !== 0){
+    //   console.log("New spendable amount is mac")
+    //   this.setState({ displayNewSpendableAmountInfo: true })
+    // }
+
     if (prevState.isLoading){
       this.setState({ isLoading: false })
     }
@@ -153,8 +161,13 @@ export class AgreementContract extends React.Component<any, any> {
       remainingAmountNum = 0
     }
     const remainingAmount = remainingAmountNum
+    let errorMessage: any = undefined
 
-    this.setState({ isLoading: true }, () => {
+    if (remainingAmountNum > this.props.maxAmountPerEpoch) {
+      errorMessage = MESSAGES.REMAINING_AMOUNT_HIGH
+    }
+
+    this.setState({ isLoading: true, errorMessage }, () => {
       this.props.onChangeContractDetails({ ...this.props, amount: this.state.sendAmountState, remainingAmount, stateIndex: this.props.stateIndex })
     })
   }
@@ -176,7 +189,7 @@ export class AgreementContract extends React.Component<any, any> {
       errorMessage = `Spending amount should be less than ${remainingAmountFromProps}`
     }
 
-    this.setState({ errorMessage: errorMessage, isLoading: true, sendAmountState: newSendAmount }, () => {
+    this.setState({ errorMessage, isLoading: true, sendAmountState: newSendAmount }, () => {
       this.createNextState({ remainingAmount: remainingAmountFromProps - newSendAmount })
     })
     
@@ -434,8 +447,10 @@ export class AgreementContract extends React.Component<any, any> {
               />
             </div>
             <div className="control">
-              <input value={this.props?.epoch}
+              <input
+                value={this.props?.epoch}
                 onChange={this.onChangeEpoch}
+                disabled={this.props.stateIndex !== 0}
                 ref={this.epochInputRef}
                 className="input has-text-grey-light has-background-dark"
                 style={{  }}
@@ -453,8 +468,10 @@ export class AgreementContract extends React.Component<any, any> {
               />
             </div>
             <div className="control">
-              <input value={this.props?.maxAmountPerEpoch}
+              <input
+                value={this.props?.maxAmountPerEpoch}
                 onChange={this.onChangeMaxAmountPerEpoch}
+                disabled={this.props.stateIndex !== 0}
                 ref={this.maxAmountPerEpochInputRef}
                 className="input has-text-grey-light has-background-dark"
                 style={{  }}
@@ -474,8 +491,10 @@ export class AgreementContract extends React.Component<any, any> {
               />
             </div>
             <div className="control">
-              <input value={this.props?.remainingTime}
+              <input
+                value={this.props?.remainingTime}
                 onChange={this.onChangeRemainingTime}
+                disabled={this.props.stateIndex !== 0}
                 ref={this.remainingTimeInputRef}
                 className="input has-text-grey-light has-background-dark"
                 type="text"
@@ -492,8 +511,10 @@ export class AgreementContract extends React.Component<any, any> {
             />
             </div>
             <div className="control">
-              <input value={this.props?.remainingAmount}
+              <input
+                value={this.props?.remainingAmount}
                 onChange={this.onChangeRemainingAmountSpendable}
+                disabled={this.props.stateIndex !== 0}
                 ref={this.remainingAmountSpendableRef}
                 className="input has-text-grey-light has-background-dark"
                 type="text"
@@ -503,11 +524,12 @@ export class AgreementContract extends React.Component<any, any> {
           </div>
         </div>
 
-        <div className="columns column is-half pl-0">
+        <div className="columns column pl-0">
           <div className="column">
             <label className="label has-text-grey-lighter">Valid From</label>
             <div className="control">
-              <input value={this.props?.validFrom}
+              <input
+                value={this.props?.validFrom}
                 onChange={this.onChangeValidFrom}
                 ref={this.validFromInputRef}
                 className="input has-text-grey-light has-background-dark"
@@ -518,11 +540,20 @@ export class AgreementContract extends React.Component<any, any> {
           </div>
 
           <div className="column">
+            <label className="label has-text-grey-lighter">Next State's validFrom</label>
+            <div className="control has-text-grey-lighter">
+              {this.state.currentBlockHeight}
+            </div>
+          </div>
+
+          <div className="column">
             <label className="label has-text-grey-lighter">Current Block Height</label>
             <div className="control has-text-grey-lighter">
               {this.state.currentBlockHeight}
             </div>
           </div>
+
+          
         </div>
       </div>
     )
