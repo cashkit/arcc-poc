@@ -39,7 +39,7 @@ export const refund = async () => {
   const rootSeed = bitbox.Mnemonic.toSeed('CashSciptTemplate');
   const hdNode = bitbox.HDNode.fromSeed(rootSeed);
 
-  const user = bitbox.HDNode.toKeyPair(bitbox.HDNode.derive(hdNode, 0));
+  const user = bitbox.HDNode.toKeyPair(bitbox.HDNode.derive(hdNode, 1));
   const cashAddr = bitbox.ECPair.toCashAddress(user);
   console.log(cashAddr)
   const NETWORK = 'mainnet'

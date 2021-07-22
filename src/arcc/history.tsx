@@ -14,7 +14,8 @@ export class History extends React.Component<any, any> {
     };
   }
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
+    // await localStorage.removeItem('executed_contracts');
     // Ignoring the memory leak :)
     this.showExecutedContractState()
     setInterval(() => {
@@ -61,6 +62,44 @@ export class History extends React.Component<any, any> {
     this.showExecutedContractState()
   }
 
+  renderNextAmount = (contract) => {
+    if (contract?.type === 'revoke') {
+      return (
+        <div className="columns">
+        <div className="column has-text-white">Change Amount</div>
+        <div className="column has-text-grey-lighter is-5">{contract?.amountToNextState}</div>
+      </div>
+      )
+    }
+
+    return (
+    <div className="columns">
+      <div className="column has-text-white">`Amount to Next State:</div>
+      <div className="column has-text-grey-lighter is-5">{contract?.amountToNextState}</div>
+    </div>
+    )
+  }
+
+  renderNextAgreementAdress = (contract) => {
+    if (contract?.type === 'revoke') {
+      return (
+        undefined
+      )
+    }
+    return (
+      <div className="columns ml-1 mt-1">
+        <div className="has-text-white pr-1">
+          Next Agreement Contract Address:
+          <div className="has-text-grey-lighter">
+            <a target='_' href={`https://explorer.bitcoin.com/bch/address/${contract?.nextAgreementContractAddress}`}>
+              {truncate(contract?.nextAgreementContractAddress)}
+              <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   renderExecuteStateDetails = () => {
     const { contracts } = this.state;
@@ -88,17 +127,7 @@ export class History extends React.Component<any, any> {
             </div>
           </div>
 
-          <div className="columns ml-1 mt-1">
-            <div className="has-text-white pr-1">
-              Next Agreement Contract Address:
-              <div className="has-text-grey-lighter">
-                <a target='_' href={`https://explorer.bitcoin.com/bch/address/${contract?.nextAgreementContractAddress}`}>
-                  {truncate(contract?.nextAgreementContractAddress)}
-                  <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
-                </a>
-              </div>
-            </div>
-          </div>
+          {this.renderNextAgreementAdress(contract)}
 
           <div className="columns">
             <div className="column has-text-white">Epoch:</div>
@@ -135,10 +164,7 @@ export class History extends React.Component<any, any> {
             <div className="column has-text-grey-lighter is-5">{contract?.minerFeeState}</div>
           </div>
 
-          <div className="columns">
-            <div className="column has-text-white">Amount to Next State:</div>
-            <div className="column has-text-grey-lighter is-5">{contract?.amountToNextState}</div>
-          </div>
+          {this.renderNextAmount(contract)}
 
           <div className="columns">
             <div className="column has-text-white">Valid From:</div>

@@ -276,6 +276,8 @@ export class AgreementContract extends React.Component<any, any> {
     // .build()
     .send()
 
+    this.saveExecutedContractState({ type: 'revoke' })
+
     console.log(tx)
     console.log(JSON.stringify(tx))
   }
@@ -296,8 +298,6 @@ export class AgreementContract extends React.Component<any, any> {
       return
     }
 
-    this.saveExecutedContractState({ type: 'spend' })
-
     if (amountToNextState < dust) {
       this.setState({ errorMessage: MESSAGES.NEXT_STATE_AMOUNT_TOO_LOW })
       return
@@ -307,7 +307,6 @@ export class AgreementContract extends React.Component<any, any> {
       this.setState({ errorMessage: MESSAGES.SPEND_AMOUNT_TOO_LOW })
       return
     }
-
 
     const aggrementTx = await agreementContract.functions
     .spend(
@@ -321,6 +320,8 @@ export class AgreementContract extends React.Component<any, any> {
     // .build()
     .send();
 
+    this.saveExecutedContractState({ type: 'spend' })
+
     console.log(aggrementTx)
     console.log(JSON.stringify(aggrementTx))
   }
@@ -330,6 +331,7 @@ export class AgreementContract extends React.Component<any, any> {
     const {
       sendAmountState,
       minerFeeState,
+      revokeMinerFeeState,
       validFromState,
       maxAmountPerEpochState,
       remainingTimeState,
@@ -342,13 +344,17 @@ export class AgreementContract extends React.Component<any, any> {
       prevContracts = JSON.parse(res)
     }
 
-    const iAgreementContractAmount = parseInt(agreementContractAmount);
-    const amountToNextState = iAgreementContractAmount - minerFeeState - sendAmountState;
+    const balance = parseInt(agreementContractAmount);
+    let amountToNextState = balance - minerFeeState - sendAmountState;
+
+    if (type === 'revoke'){
+      amountToNextState = balance - revokeMinerFeeState;
+    }
 
     let newExecutedContract = {
       type,
       time: new Date(),
-      agreementContractAmount: iAgreementContractAmount,
+      agreementContractAmount: balance,
       amountToNextState,
       agreementContractAddress: agreementContract?.address,
       epochState,

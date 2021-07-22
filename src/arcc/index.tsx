@@ -14,8 +14,8 @@ import {
   deriveNextStateValues
 } from './common';
 
-import { hexToNum } from '../utils/helpers';
-console.log(hexToNum("a6a20a00"))
+// import { hexToNum } from '../utils/helpers';
+// console.log(hexToNum("a6a20a00"))
 
 const bitbox = new BITBOX();
 

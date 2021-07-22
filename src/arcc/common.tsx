@@ -2,11 +2,11 @@ import { getTemplateContract } from '../contracts';
 import { buildLockScriptHash } from '../utils/helpers';
 
 import { getPayerWallet, getPayeeWallet } from '../wallet';
+import { BITBOX } from 'bitbox-sdk';
 
 // import { refund } from '../utils';
 // refund()
 
-import { BITBOX } from 'bitbox-sdk';
 const bitbox = new BITBOX();
 
 
