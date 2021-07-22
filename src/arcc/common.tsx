@@ -1,5 +1,4 @@
 import { getTemplateContract } from '../contracts';
-import { numberToBinUint32LE } from '@bitauth/libauth';
 import { buildLockScriptHash } from '../utils/helpers';
 
 import { getPayerWallet, getPayeeWallet } from '../wallet';
@@ -7,35 +6,46 @@ import { getPayerWallet, getPayeeWallet } from '../wallet';
 // import { refund } from '../utils';
 // refund()
 
+import { BITBOX } from 'bitbox-sdk';
+const bitbox = new BITBOX();
+
+
 export const defaultAddr = 'bitcoincash:qz2g9hg86tpdk0rhk9qg45s6nj3xqqerkvcmz5rrq0'
 // eslint-disable-next-line
 export const [ payer, payerPk, payerPkh, payerAddr ] = getPayerWallet()
 export const [ payee, payeePk, payeePkh, payeeAddr ] = getPayeeWallet()
 
+export const dust = 546
+export const defaultEpoch = 2;
+export const defaultMaxAmountPerEpoch = 3000
+export const defaultRemainingTime = defaultEpoch
+export const defaultRemainingAmount = defaultMaxAmountPerEpoch
+export const initialSendAmountState = 1000
+export const initialMinerFeeState = 1116 // Close to min relay fee of the network.
+export const initialRevokeMinerFeeState = 542
 
-// Block Height
-const currentTimeParameter = 695651;
-export const newAgeementCurrentTimeParameter = 695651
-
-// const currentTimeParameter = 1625736649;
-// const currentTimeParameter = Math.floor(new Date().getTime() / 1000) // current time in seconds.
-const epochBlockParameter =  6 // 6 blocks
-const remainingTimeBlockParameter =  6 // 6 blocks
-
-export const initialAmount = 3000
-
-// export const payerPk = ownerPk;
-// export const payeePk = ownerPk;
-// const payerAddr = bitbox.ECPair.toCashAddress(owner);
-// const payeeAddr = bitbox.ECPair.toCashAddress(owner);
-
-export const maxAmountPerEpoch = numberToBinUint32LE(initialAmount)
-export const epoch = numberToBinUint32LE(epochBlockParameter)
-export const remainingTime = numberToBinUint32LE(remainingTimeBlockParameter)
-export const remainingAmount = numberToBinUint32LE(initialAmount)
-export const validFrom = numberToBinUint32LE(currentTimeParameter) // Current height of the blockchain.
-export const newContractValidFrom = numberToBinUint32LE(newAgeementCurrentTimeParameter)
-
+export const MESSAGES: any = {
+  EPOCH_TOO_LOW: 'Epoch should be greater than 0',
+  MAX_AMOUNT_PER_EPOCH_TOO_LOW: "Max Amount/Epoch should be greater than 546",
+  NEXT_STATE_NOT_DERIVE : "Next contract state is not derived. Press the 'Derive Next State' button on the bottom right.",
+  NEXT_STATE_AMOUNT_TOO_LOW: 'Amount to next state should be greater than 546. amountToNextState = balance - minerFee - sendAmount',
+  REVOKE_AMOUNT_TOO_LOW: 'Revokable amount should be greater than 546',
+  SPEND_AMOUNT_TOO_LOW: 'Spending amount should be greater than 546',
+  HOVERABLE_EPOCH_TITLE: 'Epoch',
+  HOVERABLE_EPOCH_INFO: 'Time frame in block height.',
+  HOVERABLE_MAX_AMOUNT_PER_EPOCH_TITLE: 'MaxAmount/Epoch',
+  HOVERABLE_MAX_AMOUNT_PER_EPOCH_INFO: 'Maximum amount spendable per epoch.',
+  HOVERABLE_REMAINING_TIME_TITLE: 'Remaining Time',
+  HOVERABLE_REMAINING_TIME_INFO: 'Current Valid From - Last Valid From = Remaining Time',
+  HOVERABLE_REMAINING_SPENDABLE_AMOUNT_TITLE: 'Remaining Amount',
+  HOVERABLE_REMAINING_SPENDABLE_AMOUNT_INFO: 'Revoke invoked by Payer, has less miner fee.',
+  HOVERABLE_SPEND_TITLE: '> Spend',
+  HOVERABLE_SPEND_INFO: 'Spend invoked by Payee. The amount should be less than the `MaxAmount/Epoch` and `Remaining Amount`',
+  HOVERABLE_REVOKE_TITLE: '> Revoke',
+  HOVERABLE_REVOKE_INFO: 'Revoke invoked by Payer, has less miner fee.',
+  HOVERABLE_NEXT_STATE_TITLE: 'Next state',
+  HOVERABLE_NEXT_STATE_INFO: "If the next contract address is undefined then press the 'Derive Next State' button on the bottom right. Warning: Next contract state with amount less than 0 will not be spendable by payee."
+}
 
 export const getContractInfo = async (params, contractFile) => {
   let amount = 0
@@ -59,4 +69,46 @@ export const getContractInfo = async (params, contractFile) => {
   }
 
   return [contract, amount, completeLockScript]
+}
+
+export const deriveNextStateValues = async ({
+  epoch,
+  maxAmountPerEpoch,
+  remainingAmount,
+  validFrom,
+  remainingTime,
+  amount }) => {
+
+  const currentBlockHeight = await bitbox.Blockchain.getBlockCount()
+  const passedTime = currentBlockHeight - validFrom
+
+  let newRemainingTime = remainingTime
+  let newRemainingAmount = remainingAmount - amount;
+  let sameMaxAmountPerEpoch = maxAmountPerEpoch
+  let sameEpoch = epoch
+
+  if (sameEpoch === 0){
+    newRemainingTime = 0
+    newRemainingAmount = maxAmountPerEpoch
+  } else {
+    if (passedTime >= newRemainingTime){
+      newRemainingAmount = sameMaxAmountPerEpoch - amount;
+    }
+    if (newRemainingTime >= (passedTime % sameEpoch)) {
+      newRemainingTime = newRemainingTime - (passedTime % sameEpoch);
+    } else {
+        newRemainingTime = sameEpoch - ((passedTime % sameEpoch) - newRemainingTime);
+    }
+  }
+
+  // Un comment if required to put restrictions. Commented out for UX comfort.
+  // if (newRemainingTime === 0) {
+  //   // In case of collision.
+  //   newRemainingTime = sameEpoch;
+  // }
+
+  return {
+    validFrom: currentBlockHeight,
+    remainingAmount: newRemainingAmount,
+    remainingTime: newRemainingTime }
 }

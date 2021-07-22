@@ -1,14 +1,21 @@
 import React from 'react';
 import { numberToBinUint32LE } from '@bitauth/libauth';
+import { BITBOX } from 'bitbox-sdk';
+
 import { AgreementContract } from './agreement';
+import { History } from './history';
 import {
   getContractInfo,
   payerPk,
   payeePk,
+  defaultEpoch,
+  defaultMaxAmountPerEpoch,
+  defaultRemainingAmount,
+  deriveNextStateValues
 } from './common';
-import { BITBOX } from 'bitbox-sdk';
-// import { hexToNum } from '../utils/helpers';
-// console.log(hexToNum("01000000"))
+
+import { hexToNum } from '../utils/helpers';
+console.log(hexToNum("a6a20a00"))
 
 const bitbox = new BITBOX();
 
@@ -18,88 +25,75 @@ export class AgreementContractWrapper extends React.Component<any, any> {
   constructor(props) {
     super(props);
 
-    // @ts-ignore
     this.state = {
       contracts: []
     };
   }
 
   componentDidMount = async () => {
-    const epochNum = 1
-    const epoch = numberToBinUint32LE(epochNum)
-    const maxAmountPerEpoch = numberToBinUint32LE(3000)
-    const remainingAmount = numberToBinUint32LE(3000)
-    const blockCount = await bitbox.Blockchain.getBlockCount()
-    const validFromNum = blockCount
-    const validFrom = numberToBinUint32LE(blockCount)
+    const defaultContractState = {}
+    await this.createCurrentContractState(defaultContractState)
+  }
 
-    const remainingTimeNum = blockCount - validFromNum;
-    const remainingTime = numberToBinUint32LE(remainingTimeNum);
+  createCurrentContractState = async (params) => {
+    const epoch = params?.defaultEpoch || defaultEpoch
+    const maxAmountPerEpoch = defaultMaxAmountPerEpoch
+    const remainingAmount = defaultRemainingAmount
+    const blockCount = await bitbox.Blockchain.getBlockCount()
+    const validFrom = blockCount
+
+    let remainingTimeNum = blockCount - validFrom;
+    if (remainingTimeNum === 0) {
+      remainingTimeNum = params?.defaultEpoch || defaultEpoch
+    }
 
     const agreementContractParams = [
-        payerPk,
-        payeePk,
-        epoch,
-        maxAmountPerEpoch,
-        remainingTime,
-        remainingAmount,
-        validFrom
+      payerPk,
+      payeePk,
+      numberToBinUint32LE(epoch),
+      numberToBinUint32LE(maxAmountPerEpoch),
+      numberToBinUint32LE(remainingTimeNum),
+      numberToBinUint32LE(remainingAmount),
+      numberToBinUint32LE(validFrom)
     ]
 
-    getContractInfo(agreementContractParams, 'Agreement.cash').then((res) => {
-      const currentContract = {
+    const res = await getContractInfo(agreementContractParams, 'Agreement.cash')
+
+    const currentContract = {
         payerPk,
         payeePk,
         epoch,
         maxAmountPerEpoch,
-        remainingTime,
+        remainingTime: remainingTimeNum,
         remainingAmount,
         validFrom,
         agreementContract: res[0],
         agreementContractAmount: res[1],
         agreementScriptHash: res[2]
-      }
-      // @ts-ignore
-      const newContractState = this.state.contracts;
-      newContractState.unshift(currentContract);
-      // @ts-ignore
-      this.setState((prevState) => ({
-        contracts: [...newContractState]
-      }))
+    }
 
-    }).catch((e) => {
-      console.log(e)
-    })
+    const newContractState = this.state.contracts;
+    newContractState.unshift(currentContract);
+
+    this.setState((prevState) => ({
+      contracts: [...newContractState]
+    }))
   }
 
   createNextState = async (params) => {
-    // @ts-ignore
     const nextState = params.stateIndex;
-    const blockCountNum = await bitbox.Blockchain.getBlockCount()
-    console.log(blockCountNum);
-
-    let remainingTimeNum = (blockCountNum - parseInt(params.validFrom)) % parseInt(params.epoch)
-    if (remainingTimeNum === 0){
-      remainingTimeNum = parseInt(params.epoch)
-    }
-    const remainingTime = numberToBinUint32LE(remainingTimeNum)
-    const validFrom = numberToBinUint32LE(blockCountNum)
-    console.log("Next State: ")
-    console.log("blockCountNum", blockCountNum);
-    console.log("remainingTime", remainingTime);
 
     const agreementContractParams = [
-      params.payerPk,
-      params.payeePk,
-      params.epoch,
-      params.maxAmountPerEpoch,
-      remainingTime,
-      params.remainingAmount,
-      validFrom
+      payerPk,
+      payeePk,
+      numberToBinUint32LE(params.epoch),
+      numberToBinUint32LE(params.maxAmountPerEpoch),
+      numberToBinUint32LE(params.remainingTime),
+      numberToBinUint32LE(params.remainingAmount),
+      numberToBinUint32LE(params.validFrom)
     ]
 
     getContractInfo(agreementContractParams, 'Agreement.cash').then((res) => {
-      // @ts-ignore
       const { contracts } = this.state;
       
       const nextContract = {
@@ -107,9 +101,9 @@ export class AgreementContractWrapper extends React.Component<any, any> {
         payeePk,
         epoch: params.epoch,
         maxAmountPerEpoch: params.maxAmountPerEpoch,
-        remainingTime,
+        remainingTime: params.remainingTime,
         remainingAmount: params.remainingAmount,
-        validFrom,
+        validFrom: params.validFrom,
         agreementContract: res[0],
         agreementContractAmount: res[1],
         agreementScriptHash: res[2]
@@ -119,9 +113,6 @@ export class AgreementContractWrapper extends React.Component<any, any> {
       contracts.splice(nextState, 0, nextContract);
       contracts.splice(nextState + 2, contracts.length - (nextState + 1));
 
-      console.log(contracts)
-
-      // @ts-ignore
       this.setState(() => ({
         contracts: [...contracts]
       }))
@@ -130,29 +121,31 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     })
   }
 
+  /**
+   * Re-create the state of the current contract when this method is called.
+   * Update the state of next contract as well.
+   * Remove all contract after the next contract state is derived.
+   */
   onChangeContractDetails = async (params) => {
-    console.log(params)
-    // @ts-ignore
     const stateIndex = params.stateIndex;
     const agreementContractParams = [
-      params.payerPk,
-      params.payeePk,
-      params.epoch,
-      params.maxAmountPerEpoch,
-      params.remainingTime,
-      params.remainingAmount,
-      params.validFrom
+      payerPk,
+      payeePk,
+      numberToBinUint32LE(params.epoch),
+      numberToBinUint32LE(params.maxAmountPerEpoch),
+      numberToBinUint32LE(params.remainingTime),
+      numberToBinUint32LE(params.remainingAmount),
+      numberToBinUint32LE(params.validFrom)
     ]
 
     const currentAgreementRes = await getContractInfo(agreementContractParams, 'Agreement.cash');
 
-    getContractInfo(agreementContractParams, 'Agreement.cash')
-    // @ts-ignore
     const { contracts } = this.state;
     let currentContract = contracts[stateIndex];
+
     currentContract = {
-      payerPk: params.payerPk,
-      payeePk: params.payeePk,
+      payerPk,
+      payeePk,
       epoch: params.epoch,
       maxAmountPerEpoch: params.maxAmountPerEpoch,
       remainingTime: params.remainingTime,
@@ -167,18 +160,36 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     contracts.splice(stateIndex + 2, contracts.length - (stateIndex + 1));
 
     if (contracts[stateIndex+1]){
-      const nextAgreementRes = await getContractInfo(agreementContractParams, 'Agreement.cash');
+
+      console.log(params)
+
+      const nextState = await deriveNextStateValues({
+        epoch: params.epoch,
+        maxAmountPerEpoch: params.maxAmountPerEpoch,
+        remainingAmount: params.remainingAmount,
+        validFrom: params.validFrom,
+        remainingTime: params.remainingTime,
+        amount: params.amount
+      })
+
+      const nextAgreementContractParams = [
+        payerPk,
+        payeePk,
+        numberToBinUint32LE(params.epoch),
+        numberToBinUint32LE(params.maxAmountPerEpoch),
+        numberToBinUint32LE(nextState.remainingTime),
+        numberToBinUint32LE(nextState.remainingAmount),
+        numberToBinUint32LE(nextState.validFrom)
+      ]
+
+      const nextAgreementRes = await getContractInfo(nextAgreementContractParams, 'Agreement.cash');
 
       let nextStateContract = contracts[stateIndex+1];
-      const blockCountNum = await bitbox.Blockchain.getBlockCount()
-      const validFrom = numberToBinUint32LE(blockCountNum)
-      const remainingTimeNum = (blockCountNum - parseInt(params.validFrom)) % parseInt(params.epoch)
-      const remainingTime = numberToBinUint32LE(remainingTimeNum)
-
       nextStateContract = {
         ...currentContract,
-        remainingTime,
-        validFrom,
+        remainingAmount: nextState.remainingAmount,
+        remainingTime: nextState.remainingTime,
+        validFrom: nextState.validFrom,
         agreementContract: nextAgreementRes[0],
         agreementContractAmount: nextAgreementRes[1],
         agreementScriptHash: nextAgreementRes[2]
@@ -186,21 +197,20 @@ export class AgreementContractWrapper extends React.Component<any, any> {
       contracts[stateIndex+1] = nextStateContract
     }
 
-    console.log(contracts)
-    // @ts-ignore
     this.setState(() => ({
       contracts: [...contracts]
     }))
   }
 
   renderContracts = () => {
-    // @ts-ignore
     const { contracts } = this.state;
     return contracts.map((contract, index) => {
       let nextAgreementContractAddress;
       if (contracts[index +1]){
         nextAgreementContractAddress = contracts[index + 1]?.agreementContract?.address
       }
+
+      console.log(contracts)
       
       return (
         <AgreementContract
@@ -217,9 +227,16 @@ export class AgreementContractWrapper extends React.Component<any, any> {
 
   render() {
       return (
-        <>
-          {this.renderContracts()}
-        </>
+        <div className="columns is-full">
+          <div className="is-8 column">
+            {this.renderContracts()}
+          </div>
+          <div className="is-4 column">
+            <History
+              createCurrentContractState={this.createCurrentContractState}>
+            </History>
+          </div>
+        </div>
       )
   }
 }

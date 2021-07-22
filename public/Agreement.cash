@@ -57,9 +57,9 @@ contract Agreement(
         int newRemainingTime = int(remainingTime);
         require(within(newRemainingTime, 0, sameEpoch + 1));
 
+        // Can be negative here for cases where remaining amount is 0 but a new epoch has started.
         int newRemainingAmount = int(remainingAmount) - amount;
-        require(within(newRemainingAmount, 0, sameMaxAmountPerEpoch + 1));
-
+        // require(within(newRemainingAmount, 0, sameMaxAmountPerEpoch + 1));
 
         if (sameEpoch == 0){
             newRemainingTime = 0; // Direct assignment to 0 saves 1 operation.
@@ -80,6 +80,7 @@ contract Agreement(
             newRemainingTime = sameEpoch;
         }
 
+        require(within(newRemainingAmount, 0, sameMaxAmountPerEpoch + 1));
         // Create a new contract with timelock as the current or provided locktime during contract building.
         // Note that the constructor parameters are added in the reverse order.
         // So validFrom is actually the first statement in the contract bytecode.
