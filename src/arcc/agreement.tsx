@@ -296,7 +296,7 @@ export class AgreementContract extends React.Component<any, any> {
       this.setState({ errorMessage: MESSAGES.NEXT_STATE_NOT_DERIVE })
       return
     }
-    this.saveExecutedContractState({ type: 'spend' })
+
     if (amountToNextState < dust) {
       this.setState({ errorMessage: MESSAGES.NEXT_STATE_AMOUNT_TOO_LOW })
       return
