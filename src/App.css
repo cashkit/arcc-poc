@@ -34,3 +34,8 @@
   background:linear-gradient( #7C83FD, #96BAFF) !important;
   background-color: #7C83FD !important
 }
+
+.history-background-gradient{
+  background:linear-gradient( #7C83FD, transparent) !important;
+  background-color: #7C83FD !important
+}

@@ -317,7 +317,7 @@ export class AgreementContract extends React.Component<any, any> {
     .to(payeeAddr, sendAmount)
     .to(nextAgreementContractAddress, amountToNextState)
     // .build()
-    .send();
+    //.send();
 
     this.saveExecutedContractState({ type: 'spend' })
 
@@ -378,7 +378,7 @@ export class AgreementContract extends React.Component<any, any> {
       stateIndex} = this.props;
 
     return (
-      <div className="box">
+      <div className="box ">
         <div className="columns">
           <div className="title pl-3 pt-3">Contract State-{stateIndex}</div>
           <div className="column has-text-right">
@@ -725,11 +725,11 @@ export class AgreementContract extends React.Component<any, any> {
               }}
               text='Re-creating contract(s)'
             >
-            <div className="mr-2" style={{ borderBottom: '2px solid #96BAFF'}}>
+            <div className="mr-2">
               {this.renderConstructorDetails()}
               {this.renderInputParams()}
             </div>
-            <div className="columns pb-2" style={{ borderBottom: '2px solid #96BAFF' }}> 
+            <div className="columns pb-2" style={{ borderBottom: '4px solid #7C83FD' }}> 
               {this.renderSpendDetails()}
               {this.renderRevokeDetails()}
             </div>

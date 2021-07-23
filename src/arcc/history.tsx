@@ -171,22 +171,10 @@ export class History extends React.Component<any, any> {
     }) 
   }
 
-  renderPastStates = () => {
-    if (this.state.contracts.length !== 0){
-      return (
-        <>
-          {this.renderExecuteStateDetails()}
-        </>
-      )
-    }
-    return <div></div>
-    
-  }
-
   render(){
     return (
-      <div className="column m-0 p-0">
-        <div className="box light-dark-theme-color">
+      <div className="column card-gradient">
+        <div className="box">
           <div className="title">History</div>
           <div className="has-text-right">
             <button
@@ -201,7 +189,7 @@ export class History extends React.Component<any, any> {
             </button>
           </div>
         </div>
-        {this.renderPastStates()}
+        {this.renderExecuteStateDetails()}
       </div>
     )
   }
