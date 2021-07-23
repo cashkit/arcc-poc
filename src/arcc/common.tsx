@@ -34,9 +34,9 @@ export const MESSAGES: any = {
   HOVERABLE_REMAINING_TIME_INFO: 'Current Valid From - Last Valid From = Remaining Time',
   HOVERABLE_REMAINING_SPENDABLE_AMOUNT_TITLE: 'Remaining Amount',
   HOVERABLE_REMAINING_SPENDABLE_AMOUNT_INFO: 'Revoke invoked by Payer, has less miner fee.',
-  HOVERABLE_SPEND_TITLE: '> Spend',
+  HOVERABLE_SPEND_TITLE: 'Spend',
   HOVERABLE_SPEND_INFO: 'Spend invoked by Payee. The amount should be less than the `MaxAmount/Epoch` and `Remaining Amount` However, If passedTime >= remainingTime than spendable remainingAmount = maxAmountPerEpoch ',
-  HOVERABLE_REVOKE_TITLE: '> Revoke',
+  HOVERABLE_REVOKE_TITLE: 'Revoke',
   HOVERABLE_REVOKE_INFO: 'Revoke invoked by Payer, has less miner fee.',
   HOVERABLE_NEXT_STATE_TITLE: 'Next state',
   HOVERABLE_NEXT_STATE_INFO: "If the next contract address is undefined then press the 'Derive Next State' button on the bottom right. Warning: Next contract state with amount less than 0 will not be spendable by payee."

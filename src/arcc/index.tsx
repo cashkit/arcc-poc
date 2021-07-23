@@ -225,8 +225,8 @@ export class AgreementContractWrapper extends React.Component<any, any> {
 
   render() {
       return (
-        <div className="columns is-full">
-          <div className="is-9 column">
+        <div className="columns is-full is-centered">
+          <div className="is-8 column">
             {this.renderContracts()}
           </div>
           <div className="is-3 column">

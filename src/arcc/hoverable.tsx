@@ -7,7 +7,7 @@ export const HoverableHeading = (props) => {
 
   return (
     <div className="columns is-4 mt-2 pl-3">
-      <label className="title has-text-white is-4 pt-2">{props.title}</label>
+      <label className="title is-4 pt-2">{props.title}</label>
       <div className="dropdown is-hoverable">
       <div className="dropdown-trigger has-text-centered is-centered">
           <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />
@@ -29,7 +29,7 @@ export const HoverableHeading = (props) => {
 export const HoverableSubHeading = (props) => {
   return (
     <div className="columns is-4 mt-2 pl-3">
-      <label className="label has-text-grey-lighter">{props.title}</label>
+      <label className="label ">{props.title}</label>
       <div className="dropdown is-hoverable">
       <div className="dropdown-trigger has-text-centered is-centered">
           <FontAwesomeIcon className="ml-3 pb-0 mb-0" icon={faQuestionCircle} />

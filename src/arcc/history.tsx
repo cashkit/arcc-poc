@@ -63,16 +63,16 @@ export class History extends React.Component<any, any> {
     if (contract?.type === 'revoke') {
       return (
         <div className="columns">
-        <div className="column has-text-grey-lighter">Change Amount</div>
-        <div className="column has-text-grey-light is-5">{contract?.amountToNextState}</div>
+        <div className="column">Change Amount</div>
+        <div className="column is-5">{contract?.amountToNextState}</div>
       </div>
       )
     }
 
     return (
     <div className="columns">
-      <div className="column has-text-grey-light">Amount to Next State:</div>
-      <div className="column has-text-grey-light is-5">{contract?.amountToNextState}</div>
+      <div className="column">Amount to Next State:</div>
+      <div className="column is-5">{contract?.amountToNextState}</div>
     </div>
     )
   }
@@ -85,11 +85,11 @@ export class History extends React.Component<any, any> {
     }
     return (
       <div className="columns">
-        <div className="column has-text-grey-lighter">
+        <div className="column ">
           Next Agreement Contract Address:
-          <div className="has-text-grey-light"> {truncate(contract?.nextAgreementContractAddress)}
-            <a target='_' href={`https://explorer.bitcoin.com/bch/address/${contract?.nextAgreementContractAddress}`}>
-              <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+          <div className="">
+            <a style={{ color: '#53B8BB' }} target='_' href={`https://explorer.bitcoin.com/bch/address/${contract?.nextAgreementContractAddress}`}>
+            {truncate(contract?.nextAgreementContractAddress)}<FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
             </a>
           </div>
         </div>
@@ -101,23 +101,23 @@ export class History extends React.Component<any, any> {
     const { contracts } = this.state;
     return contracts.map((contract, index) => {
       return (
-        <div key={index}>
+        <div key={index} className="box">
           <div className="columns">
-            <div className="column has-text-grey-light">Type: {contract?.type}</div>
+            <div className="column ">Type: {contract?.type}</div>
             <div className="column title has-text-grey is-1 mr-4 pt-0" onClick={() => this.removeSelected(index)}>x</div>
           </div>
           
           <div className="columns">
-            <div className="column has-text-grey-lighter">Time:</div>
-            <div className="column has-text-grey-light is-6">{contract?.time}</div>
+            <div className="column ">Time:</div>
+            <div className="column  is-6">{contract?.time}</div>
           </div>
 
           <div className="columns">
-            <div className="column has-text-grey-lighter">
+            <div className="column">
               Agreement Contract Address:
-              <div className="has-text-grey-light"> {truncate(contract?.agreementContractAddress)}
-                <a target='_' href={`https://explorer.bitcoin.com/bch/address/${contract?.agreementContractAddress}`}>
-                  <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+              <div>
+                <a style={{ color: '#53B8BB' }} target='_' href={`https://explorer.bitcoin.com/bch/address/${contract?.agreementContractAddress}`}>
+                {truncate(contract?.agreementContractAddress)}<FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
                 </a>
               </div>
             </div>
@@ -126,79 +126,82 @@ export class History extends React.Component<any, any> {
           {this.renderNextAgreementAdress(contract)}
 
           <div className="columns">
-            <div className="column has-text-grey-lighter">Epoch:</div>
-            <div className="column has-text-grey-light is-5">{contract?.epochState}</div>
+            <div className="column ">Epoch:</div>
+            <div className="column is-5">{contract?.epochState}</div>
           </div>
           
           <div className="columns">
-            <div className="column has-text-grey-lighter">Remaining Time:</div>
-            <div className="column has-text-grey-light is-5">{contract?.remainingTimeState}</div>
+            <div className="column ">Remaining Time:</div>
+            <div className="column is-5">{contract?.remainingTimeState}</div>
           </div>
 
           <div className="columns">
-            <div className="column has-text-grey-lighter">Max Amount Per Epoch:</div>
-            <div className="column has-text-grey-light is-5">{contract?.maxAmountPerEpochState}</div>
+            <div className="column ">Max Amount Per Epoch:</div>
+            <div className="column is-5">{contract?.maxAmountPerEpochState}</div>
           </div>
 
           <div className="columns">
-            <div className="column has-text-grey-lighter">Remaining Amount:</div>
-            <div className="column has-text-grey-light is-5">{contract?.remainingAmountState}</div>
+            <div className="column ">Remaining Amount:</div>
+            <div className="column is-5">{contract?.remainingAmountState}</div>
           </div>
 
           <div className="columns">
-            <div className="column has-text-grey-lighter">Balance:</div>
-            <div className="column has-text-grey-light is-5">{contract?.agreementContractAmount}</div>
+            <div className="column ">Balance:</div>
+            <div className="column is-5">{contract?.agreementContractAmount}</div>
           </div>
 
           <div className="columns">
-            <div className="column has-text-grey-lighter">Send Amount:</div>
-            <div className="column has-text-grey-light is-5">{contract?.sendAmountState}</div>
+            <div className="column ">Send Amount:</div>
+            <div className="column is-5">{contract?.sendAmountState}</div>
           </div>
 
           <div className="columns">
-            <div className="column has-text-grey-lighter">Miner Fee:</div>
-            <div className="column has-text-grey-light is-5">{contract?.minerFeeState}</div>
+            <div className="column ">Miner Fee:</div>
+            <div className="column is-5">{contract?.minerFeeState}</div>
           </div>
 
           {this.renderNextAmount(contract)}
 
           <div className="columns">
-            <div className="column has-text-grey-lighter">Valid From:</div>
-            <div className="column has-text-grey-light is-5">{contract?.validFromState}</div>
+            <div className="column ">Valid From:</div>
+            <div className="column is-5">{contract?.validFromState}</div>
           </div>
-
-          <div className="mb-2 pb-3" style={{ borderBottom: '3px solid rgb(30, 32, 35)' }}></div>
         </div>
       )
     }) 
   }
 
-  render(){
-    let arrangement = 'columns column light-dark-theme-color m-0';
-    if (this.state.contracts.length === 0){ arrangement = 'columns light-dark-theme-color m-1' }
+  renderPastStates = () => {
+    if (this.state.contracts.length !== 0){
+      return (
+        <>
+          {this.renderExecuteStateDetails()}
+        </>
+      )
+    }
+    return <div></div>
+    
+  }
 
+  render(){
     return (
-      <div className="columns is-multiline">
-        <div className={arrangement} style={{ borderBottom: '3px solid rgb(30, 32, 35)' }}>
-          <div className="title has-text-grey-light pl-3 pt-3">History</div>
-          <div className="column has-text-right">
+      <div className="column m-0 p-0">
+        <div className="box light-dark-theme-color">
+          <div className="title">History</div>
+          <div className="has-text-right">
             <button
               onClick={this.refreshHistory}
-              style={{ borderWidth: 0 }}
-              className="button has-text-grey-lighter mr-2 dark-theme-color">
+              className="button mr-2 background-gradient has-text-white">
                 Refresh
             </button>
             <button
               onClick={this.clearAll}
-              style={{ borderWidth: 0 }}
-              className="button has-text-grey-lighter dark-theme-color">
+              className="button background-gradient has-text-white">
                 Clear
             </button>
           </div>
         </div>
-        <div className="column light-dark-theme-color">
-            {this.renderExecuteStateDetails()}
-        </div>
+        {this.renderPastStates()}
       </div>
     )
   }

@@ -296,7 +296,7 @@ export class AgreementContract extends React.Component<any, any> {
       this.setState({ errorMessage: MESSAGES.NEXT_STATE_NOT_DERIVE })
       return
     }
-
+    this.saveExecutedContractState({ type: 'spend' })
     if (amountToNextState < dust) {
       this.setState({ errorMessage: MESSAGES.NEXT_STATE_AMOUNT_TOO_LOW })
       return
@@ -378,79 +378,65 @@ export class AgreementContract extends React.Component<any, any> {
       stateIndex} = this.props;
 
     return (
-      <>
+      <div className="box">
         <div className="columns">
-          <div className="title has-text-white pl-3 pt-3">Contract State-{stateIndex}</div>
+          <div className="title pl-3 pt-3">Contract State-{stateIndex}</div>
           <div className="column has-text-right">
             <InfoComponent/>
           </div>
         </div>
         
-        <div className="mb-2 pb-3" style={{ borderBottom: '3px solid rgb(30, 32, 35)' }}>
-          <label className="label has-text-grey-lighter">
-            <a target='_' href={`https://explorer.bitcoin.com/bch/address/${agreementContract?.address}`}>
+        <div className="columns">
+          <label className="column is-7">
+            <a style={{ color: '#53B8BB' }} target='_' href={`https://explorer.bitcoin.com/bch/address/${agreementContract?.address}`}>
             {agreementContract?.address} <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
             </a>
           </label>
-          <div className="columns column">
-            <div className="column pl-0 is-2 control has-text-grey-lighter">
+          <div className="column is-3">
+            <div className="control">
                 Balance: {agreementContractAmount} 
             </div>
+          </div>
+          <div className="column is-2">
             <button
               onClick={this.refresh}
-              style={{ borderWidth: 0 }}
-              className="button has-text-white dark-theme-color">
+              className="button background-gradient has-text-white">
                 Fetch Balance
             </button>
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
   renderConstructorDetails = () => {
     return (
-      <>
-      <div className="title has-text-white is-4 pt-2">{'> Constructor'}</div>
-        {/* <div className="columns column mb-0 pb-0">
-          <label className="label has-text-grey-lighter pr-3">PayerPk</label>
-          <div className="control has-text-grey-light">
-            0x{binToHex(payerPk)}
-          </div>
-        </div>
-
-        <div className="columns column mb-0 pb-1">
-          <label className="label has-text-grey-lighter pr-3">PayeePk</label>
-          <div className="control has-text-grey-light">
-            0x{binToHex(payeePk)}
-          </div>
-        </div> */}
-
+      <div>
+      <div className="title is-4 pt-2">Constructor</div>
         <div className="columns column mb-0 pb-0">
-          <label className="label has-text-grey-lighter pr-3">Payer Address</label>
-          <label className="label has-text-grey-light">
-            <a target='_' href={`https://explorer.bitcoin.com/bch/address/${payerAddr}`}>
+          <label className="label  pr-3">Payer Address</label>
+          <label>
+            <a style={{ color: '#53B8BB' }} target='_' href={`https://explorer.bitcoin.com/bch/address/${payerAddr}`}>
             {payerAddr}<FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
             </a>
           </label>
         </div>
 
         <div className="columns column mb-0 pb-0">
-          <label className="label has-text-grey-lighter pr-3">Payee Address</label>
-          <label className="label has-text-grey-light">
-            <a target='_' href={`https://explorer.bitcoin.com/bch/address/${payeeAddr}`}>
+          <label className="label  pr-3">Payee Address</label>
+          <label>
+            <a style={{ color: '#53B8BB' }} target='_' href={`https://explorer.bitcoin.com/bch/address/${payeeAddr}`}>
             {payeeAddr}<FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
             </a>
           </label>
         </div>
-      </>
+      </div>
     )
   }
 
   renderInputParams = () => {
-
     return (
-      <div className="field pb-3 pt-3" style={{ borderBottom: '2px solid rgb(30, 32, 35)'}}>
+      <div className="field pb-3 pt-3">
         <div className="columns">
 
           <div className="column">
@@ -466,8 +452,8 @@ export class AgreementContract extends React.Component<any, any> {
                 onChange={this.onChangeEpoch}
                 disabled={this.props.stateIndex !== 0}
                 ref={this.epochInputRef}
-                style={{ borderColor: 'grey' }}
-                className="input has-text-grey-light has-background-dark"
+                style={{ backgroundColor: '#F9F9F9', borderColor: 'white' }}
+                className="input"
                 type="text"
                 placeholder="Remaining Time"
               />
@@ -487,8 +473,8 @@ export class AgreementContract extends React.Component<any, any> {
                 onChange={this.onChangeMaxAmountPerEpoch}
                 disabled={this.props.stateIndex !== 0}
                 ref={this.maxAmountPerEpochInputRef}
-                style={{ borderColor: 'grey' }}
-                className="input has-text-grey-light has-background-dark"
+                style={{ backgroundColor: '#F9F9F9', borderColor: 'white' }}
+                className="input"
                 type="text"
                 placeholder="Remaining Time"
               />
@@ -510,8 +496,8 @@ export class AgreementContract extends React.Component<any, any> {
                 onChange={this.onChangeRemainingTime}
                 disabled={this.props.stateIndex !== 0}
                 ref={this.remainingTimeInputRef}
-                style={{ borderColor: 'grey' }}
-                className="input has-text-grey-light has-background-dark"
+                style={{ backgroundColor: '#F9F9F9', borderColor: 'white' }}
+                className="input"
                 type="text"
                 placeholder="Remaining Time"
               />
@@ -531,8 +517,8 @@ export class AgreementContract extends React.Component<any, any> {
                 onChange={this.onChangeRemainingAmountSpendable}
                 disabled={this.props.stateIndex !== 0}
                 ref={this.remainingAmountSpendableRef}
-                style={{ borderColor: 'grey' }}
-                className="input has-text-grey-light has-background-dark"
+                style={{ backgroundColor: '#F9F9F9', borderColor: 'white' }}
+                className="input"
                 type="text"
                 placeholder="Remaining Amount"
               />
@@ -542,14 +528,14 @@ export class AgreementContract extends React.Component<any, any> {
 
         <div className="columns column pl-0">
           <div className="column">
-            <label className="label has-text-grey-lighter">Valid From</label>
+            <label className="label ">Valid From</label>
             <div className="control">
               <input
                 value={this.props?.validFrom}
                 onChange={this.onChangeValidFrom}
                 ref={this.validFromInputRef}
-                style={{ borderColor: 'grey' }}
-                className="input has-text-grey-light has-background-dark"
+                style={{ backgroundColor: '#F9F9F9', borderColor: 'white' }}
+                className="input"
                 type="text"
                 placeholder="Valid From"
               />
@@ -557,15 +543,15 @@ export class AgreementContract extends React.Component<any, any> {
           </div>
 
           <div className="column">
-            <label className="label has-text-grey-lighter">Next State's validFrom</label>
-            <div className="control has-text-grey-lighter">
+            <label className="label">Next State's validFrom</label>
+            <div className="control pt-2">
               {this.state.currentBlockHeight}
             </div>
           </div>
 
           <div className="column">
-            <label className="label has-text-grey-lighter">Current Block Height</label>
-            <div className="control has-text-grey-lighter">
+            <label className="label">Current Block Height</label>
+            <div className="control pt-2">
               {this.state.currentBlockHeight}
             </div>
           </div>
@@ -581,7 +567,7 @@ export class AgreementContract extends React.Component<any, any> {
 
     const { agreementContractAmount } = this.props;
     return (
-      <div className="column" style={{ borderBottom: '3px solid rgb(30, 32, 35)' }}>
+      <div className="column">
         <div className="columns is-4 mt-2 pl-3">
           <HoverableHeading
             title={MESSAGES.HOVERABLE_SPEND_TITLE}
@@ -591,13 +577,13 @@ export class AgreementContract extends React.Component<any, any> {
 
         <div className="columns">
           <div className="column">
-            <label className="label has-text-grey-lighter">Amount</label>
+            <label className="label ">Amount</label>
             <div className="control">
               <input value={sendAmountState}
                 onChange={this.onChangeSendAmount}
                 ref={this.sendAmountInputRef}
-                style={{ borderColor: 'grey' }}
-                className="input has-text-grey-light has-background-dark"
+                style={{ backgroundColor: '#F9F9F9', borderColor: 'white' }}
+                className="input"
                 type="text"
                 placeholder="Send Amount"
               />
@@ -605,13 +591,13 @@ export class AgreementContract extends React.Component<any, any> {
           </div>
 
           <div className="column">
-            <label className="label has-text-grey-lighter">Miner Fee</label>
+            <label className="label ">Miner Fee</label>
             <div className="control">
               <input value={minerFeeState}
                 onChange={this.onChangeMinerFee}
                 ref={this.minerFeeInputRef}
-                style={{ borderColor: 'grey' }}
-                className="input has-text-grey-light has-background-dark"
+                style={{ backgroundColor: '#F9F9F9', borderColor: 'white' }}
+                className="input"
                 type="text"
                 placeholder="Miner Fee"
               />
@@ -621,20 +607,17 @@ export class AgreementContract extends React.Component<any, any> {
         </div>
         
         <div>
-          <label className="label has-text-grey-lighter">Amount To Next State</label>
-          <div className="control has-text-grey-lighter">
+          <label className="label ">Amount To Next State</label>
+          <div className="control ">
               Balance({agreementContractAmount}) - amount({sendAmountState}) - minerFee({minerFeeState}) = {agreementContractAmount - sendAmountState - minerFeeState}
           </div>
         </div>
 
         <button
           onClick={this.submitSpendTransaction}
-          style={{ borderWidth: 0 }}
-          className="button has-text-white mt-5 dark-theme-color">
+          className="button mt-5 background-gradient has-text-white">
             Submit Transaction
         </button>
-
-        
       </div>
     )
   }
@@ -644,8 +627,8 @@ export class AgreementContract extends React.Component<any, any> {
     const { agreementContractAmount } = this.props;
 
     return (
-      <div className="column" style={{ borderBottom: '3px solid rgb(30, 32, 35)' }}>
-        <div className="columns is-4 mt-2">
+      <div className="column">
+        <div className="columns is-4 mt-2 pl-3">
           <HoverableHeading
             title={MESSAGES.HOVERABLE_REVOKE_TITLE}
             info={MESSAGES.HOVERABLE_REVOKE_INFO}
@@ -653,13 +636,13 @@ export class AgreementContract extends React.Component<any, any> {
         </div>
         <div className="columns">
           <div className="column">
-            <label className="label has-text-grey-lighter">Miner Fee</label>
+            <label className="label ">Miner Fee</label>
             <div className="control">
               <input value={revokeMinerFeeState}
                 onChange={this.onChangeRevokeMinerFee}
                 ref={this.revokeMinerFeeInputRef}
-                style={{ borderColor: 'grey' }}
-                className="input has-text-grey-light has-background-dark"
+                style={{ backgroundColor: '#F9F9F9', borderColor: 'white' }}
+                className="input"
                 type="text"
                 placeholder="Miner Fee"
               />
@@ -668,16 +651,15 @@ export class AgreementContract extends React.Component<any, any> {
         </div>
 
         <div>
-          <label className="label has-text-grey-lighter">Amount To Payer</label>
-          <div className="control has-text-grey-lighter">
+          <label className="label ">Amount To Payer</label>
+          <div className="control ">
               Balance({agreementContractAmount}) - minerFee({revokeMinerFeeState}) = {agreementContractAmount - revokeMinerFeeState}
           </div>
         </div>
 
         <button
           onClick={this.submitRevokeTransaction}
-          className="button has-text-white mt-5 dark-theme-color"
-          style={{ borderWidth: 0 }}>
+          className="button mt-5 background-gradient has-text-white">
             Revoke
         </button>
      </div>
@@ -692,7 +674,7 @@ export class AgreementContract extends React.Component<any, any> {
     const { nextAgreementContractAddress } = this.props;
 
     return (
-      <>
+      <div className="pt-2">
         <div className="columns">
           <div className="field column">
             <HoverableSubHeading
@@ -706,30 +688,30 @@ export class AgreementContract extends React.Component<any, any> {
           </div>
 
           <div className="column has-text-right">
-            <button onClick={this.createNextState} className="button has-text-white dark-theme-color">Derive Next State </button>
+            <button onClick={this.createNextState} className="button background-gradient has-text-white">Derive Next State </button>
           </div>
         </div>
 
-        <div className="notification is-danger">
+        <div className="notification" style={{ backgroundColor: '#7C83FD', color: 'white' }}>
           Previous/Current Error: {errorMessage} (Errors lead to an invalid contract state address.)
         </div>
 
         <div className="field">
-          <label className="label has-text-grey-lighter">Metadata</label>
+          <label className="label ">Metadata</label>
           <div className="control">
             <p className="content has-text-grey-light">{metaData}</p>
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
   render(){
     const { isLoading } = this.state;
     return (
-      <div className="columns is-multiline pb-4">
-        <div className="columns column is-full is-centered">
-          <div className="box column light-dark-theme-color">
+      <div className="columns is-multiline mb-4 pb-4">
+        <div className="box columns column is-full is-centered card-gradient">
+          <div className="column light-dark-theme-color">
             {this.renderHeaderDetails()}
             <LoadingOverlay
               active={isLoading}
@@ -738,16 +720,16 @@ export class AgreementContract extends React.Component<any, any> {
               styles={{
                 overlay: (base) => ({
                   ...base,
-                  background: 'rgba(42, 45, 47, 0.7)'
+                  background: 'rgba(142, 145, 147, 0.7)'
                 })
               }}
               text='Re-creating contract(s)'
             >
-            <div className="mr-2">
+            <div className="mr-2" style={{ borderBottom: '2px solid #96BAFF'}}>
               {this.renderConstructorDetails()}
               {this.renderInputParams()}
             </div>
-            <div className="columns"> 
+            <div className="columns pb-2" style={{ borderBottom: '2px solid #96BAFF' }}> 
               {this.renderSpendDetails()}
               {this.renderRevokeDetails()}
             </div>
@@ -763,8 +745,6 @@ export class AgreementContract extends React.Component<any, any> {
             <div className="column has-text-centered"> <strong className="has-text-white">||</strong> </div>
           </div>
         </div>
-
-        
       </div>
     )
   }

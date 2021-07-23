@@ -1,5 +1,6 @@
 .App-header {
-  background-color: rgb(30, 32, 35);
+  /* background-color: rgb(30, 32, 35); */
+  background-color: #7C83FD !important;
   min-height: 10vh;
   display: flex;
   flex-direction: column;
@@ -10,13 +11,26 @@
 }
 
 .App {
-  background-color: rgb(30, 32, 35);
+  /* background-color: rgb(30, 32, 35); */
+  background-color: #7C83FD !important;
 }
 
 .dark-theme-color{
-  background-color: rgb(30, 32, 35) !important;
+  /* background-color: rgb(30, 32, 35) !important; */
+  background-color: #7C83FD !important;
 }
 
 .light-dark-theme-color{
-  background-color: rgb(47, 50, 52) !important;
+  /* background-color: rgb(240, 233, 245) !important; */
+  background-color: #FFFFFF !important;
+}
+
+.card-gradient{
+  background:linear-gradient( #96BAFF, #7DEDFF, #96BAFF) !important;
+  background-color: #96BAFF !important
+}
+
+.background-gradient{
+  background:linear-gradient( #7C83FD, #96BAFF) !important;
+  background-color: #7C83FD !important
 }
