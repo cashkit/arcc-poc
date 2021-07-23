@@ -17,9 +17,9 @@ import {
   payee,
   payer,
   payeeAddr,
-  payerAddr,
-  deriveNextStateValues } from './common';
-import '../App.css'
+  payerAddr } from './common';
+import { deriveNextStateValues } from '../utils/helpers';
+import '../App.css';
 
 import { BITBOX } from 'bitbox-sdk';
 const bitbox = new BITBOX();
@@ -70,13 +70,6 @@ export class AgreementContract extends React.Component<any, any> {
   }
 
   componentDidUpdate = async (prevProps, prevState, snapshot) => {
-    // const blockCount = await bitbox.Blockchain.getBlockCount()
-    // const passedTime = blockCount - prevProps?.validFrom
-    // if (passedTime >= prevProps?.remainingTime && prevProps.stateIndex !== 0){
-    //   console.log("New spendable amount is mac")
-    //   this.setState({ displayNewSpendableAmountInfo: true })
-    // }
-
     if (prevState.isLoading){
       this.setState({ isLoading: false })
     }
@@ -383,6 +376,7 @@ export class AgreementContract extends React.Component<any, any> {
       agreementContract,
       agreementContractAmount,
       stateIndex} = this.props;
+
     return (
       <>
         <div className="columns">
@@ -393,9 +387,9 @@ export class AgreementContract extends React.Component<any, any> {
         </div>
         
         <div className="mb-2 pb-3" style={{ borderBottom: '3px solid rgb(30, 32, 35)' }}>
-          <label className="label has-text-grey-lighter">{agreementContract?.address}
+          <label className="label has-text-grey-lighter">
             <a target='_' href={`https://explorer.bitcoin.com/bch/address/${agreementContract?.address}`}>
-              <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+            {agreementContract?.address} <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
             </a>
           </label>
           <div className="columns column">
@@ -404,9 +398,9 @@ export class AgreementContract extends React.Component<any, any> {
             </div>
             <button
               onClick={this.refresh}
-              style={{ backgroundColor: 'rgb(30, 32, 35)', borderWidth: 0 }}
-              className="button has-text-white">
-                  Refresh State
+              style={{ borderWidth: 0 }}
+              className="button has-text-white dark-theme-color">
+                Fetch Balance
             </button>
           </div>
         </div>
@@ -434,18 +428,18 @@ export class AgreementContract extends React.Component<any, any> {
 
         <div className="columns column mb-0 pb-0">
           <label className="label has-text-grey-lighter pr-3">Payer Address</label>
-          <label className="label has-text-grey-light">{payerAddr}
+          <label className="label has-text-grey-light">
             <a target='_' href={`https://explorer.bitcoin.com/bch/address/${payerAddr}`}>
-              <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+            {payerAddr}<FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
             </a>
           </label>
         </div>
 
         <div className="columns column mb-0 pb-0">
           <label className="label has-text-grey-lighter pr-3">Payee Address</label>
-          <label className="label has-text-grey-light">{payeeAddr}
+          <label className="label has-text-grey-light">
             <a target='_' href={`https://explorer.bitcoin.com/bch/address/${payeeAddr}`}>
-              <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+            {payeeAddr}<FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
             </a>
           </label>
         </div>
@@ -472,8 +466,8 @@ export class AgreementContract extends React.Component<any, any> {
                 onChange={this.onChangeEpoch}
                 disabled={this.props.stateIndex !== 0}
                 ref={this.epochInputRef}
+                style={{ borderColor: 'grey' }}
                 className="input has-text-grey-light has-background-dark"
-                style={{  }}
                 type="text"
                 placeholder="Remaining Time"
               />
@@ -493,8 +487,8 @@ export class AgreementContract extends React.Component<any, any> {
                 onChange={this.onChangeMaxAmountPerEpoch}
                 disabled={this.props.stateIndex !== 0}
                 ref={this.maxAmountPerEpochInputRef}
+                style={{ borderColor: 'grey' }}
                 className="input has-text-grey-light has-background-dark"
-                style={{  }}
                 type="text"
                 placeholder="Remaining Time"
               />
@@ -516,6 +510,7 @@ export class AgreementContract extends React.Component<any, any> {
                 onChange={this.onChangeRemainingTime}
                 disabled={this.props.stateIndex !== 0}
                 ref={this.remainingTimeInputRef}
+                style={{ borderColor: 'grey' }}
                 className="input has-text-grey-light has-background-dark"
                 type="text"
                 placeholder="Remaining Time"
@@ -536,6 +531,7 @@ export class AgreementContract extends React.Component<any, any> {
                 onChange={this.onChangeRemainingAmountSpendable}
                 disabled={this.props.stateIndex !== 0}
                 ref={this.remainingAmountSpendableRef}
+                style={{ borderColor: 'grey' }}
                 className="input has-text-grey-light has-background-dark"
                 type="text"
                 placeholder="Remaining Amount"
@@ -552,6 +548,7 @@ export class AgreementContract extends React.Component<any, any> {
                 value={this.props?.validFrom}
                 onChange={this.onChangeValidFrom}
                 ref={this.validFromInputRef}
+                style={{ borderColor: 'grey' }}
                 className="input has-text-grey-light has-background-dark"
                 type="text"
                 placeholder="Valid From"
@@ -572,8 +569,6 @@ export class AgreementContract extends React.Component<any, any> {
               {this.state.currentBlockHeight}
             </div>
           </div>
-
-          
         </div>
       </div>
     )
@@ -601,6 +596,7 @@ export class AgreementContract extends React.Component<any, any> {
               <input value={sendAmountState}
                 onChange={this.onChangeSendAmount}
                 ref={this.sendAmountInputRef}
+                style={{ borderColor: 'grey' }}
                 className="input has-text-grey-light has-background-dark"
                 type="text"
                 placeholder="Send Amount"
@@ -614,6 +610,7 @@ export class AgreementContract extends React.Component<any, any> {
               <input value={minerFeeState}
                 onChange={this.onChangeMinerFee}
                 ref={this.minerFeeInputRef}
+                style={{ borderColor: 'grey' }}
                 className="input has-text-grey-light has-background-dark"
                 type="text"
                 placeholder="Miner Fee"
@@ -632,8 +629,8 @@ export class AgreementContract extends React.Component<any, any> {
 
         <button
           onClick={this.submitSpendTransaction}
-          style={{ backgroundColor: 'rgb(30, 32, 35)', borderWidth: 0 }}
-          className="button has-text-white mt-5">
+          style={{ borderWidth: 0 }}
+          className="button has-text-white mt-5 dark-theme-color">
             Submit Transaction
         </button>
 
@@ -661,6 +658,7 @@ export class AgreementContract extends React.Component<any, any> {
               <input value={revokeMinerFeeState}
                 onChange={this.onChangeRevokeMinerFee}
                 ref={this.revokeMinerFeeInputRef}
+                style={{ borderColor: 'grey' }}
                 className="input has-text-grey-light has-background-dark"
                 type="text"
                 placeholder="Miner Fee"
@@ -678,8 +676,8 @@ export class AgreementContract extends React.Component<any, any> {
 
         <button
           onClick={this.submitRevokeTransaction}
-          className="button has-text-white mt-5"
-          style={{ backgroundColor: 'rgb(30, 32, 35)', borderWidth: 0 }}>
+          className="button has-text-white mt-5 dark-theme-color"
+          style={{ borderWidth: 0 }}>
             Revoke
         </button>
      </div>
@@ -695,7 +693,6 @@ export class AgreementContract extends React.Component<any, any> {
 
     return (
       <>
-        
         <div className="columns">
           <div className="field column">
             <HoverableSubHeading
@@ -709,11 +706,12 @@ export class AgreementContract extends React.Component<any, any> {
           </div>
 
           <div className="column has-text-right">
-            <button onClick={this.createNextState} className="button has-text-white" style={{ backgroundColor: 'rgb(30, 32, 35)' }}>Derive Next State </button>
+            <button onClick={this.createNextState} className="button has-text-white dark-theme-color">Derive Next State </button>
           </div>
         </div>
-        <div className="notification">
-          Current/Prev Error: {errorMessage}
+
+        <div className="notification is-danger">
+          Previous/Current Error: {errorMessage} (Errors lead to an invalid contract state address.)
         </div>
 
         <div className="field">
@@ -731,7 +729,7 @@ export class AgreementContract extends React.Component<any, any> {
     return (
       <div className="columns is-multiline pb-4">
         <div className="columns column is-full is-centered">
-          <div className="box column" style={{ backgroundColor: 'rgb(42, 45, 47)' }}>
+          <div className="box column light-dark-theme-color">
             {this.renderHeaderDetails()}
             <LoadingOverlay
               active={isLoading}

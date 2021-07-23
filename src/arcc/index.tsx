@@ -11,8 +11,10 @@ import {
   defaultEpoch,
   defaultMaxAmountPerEpoch,
   defaultRemainingAmount,
-  deriveNextStateValues
 } from './common';
+
+import { deriveNextStateValues } from '../utils/helpers';
+
 
 // import { hexToNum } from '../utils/helpers';
 // console.log(hexToNum("a6a20a00"))
@@ -207,8 +209,6 @@ export class AgreementContractWrapper extends React.Component<any, any> {
       if (contracts[index +1]){
         nextAgreementContractAddress = contracts[index + 1]?.agreementContract?.address
       }
-
-      console.log(contracts)
       
       return (
         <AgreementContract
@@ -226,10 +226,10 @@ export class AgreementContractWrapper extends React.Component<any, any> {
   render() {
       return (
         <div className="columns is-full">
-          <div className="is-8 column">
+          <div className="is-9 column">
             {this.renderContracts()}
           </div>
-          <div className="is-4 column">
+          <div className="is-3 column">
             <History
               createCurrentContractState={this.createCurrentContractState}>
             </History>

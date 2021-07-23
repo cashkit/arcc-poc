@@ -13,6 +13,10 @@
   background-color: rgb(30, 32, 35);
 }
 
-.SpinnerDesign {
-  background-color: rgb(30, 32, 35);
+.dark-theme-color{
+  background-color: rgb(30, 32, 35) !important;
+}
+
+.light-dark-theme-color{
+  background-color: rgb(47, 50, 52) !important;
 }

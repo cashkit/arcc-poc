@@ -5,7 +5,7 @@ import { BITBOX } from 'bitbox-sdk';
 
 export const truncate = (str) => {
 	const strlen = str.length
-	return strlen > 10 ? str.substring(0, 25) + "......" + str.substring(strlen-15, strlen): str;
+	return strlen > 10 ? str.substring(0, 20) + "......" + str.substring(strlen-10, strlen): str;
 }
 
 export class Signer {
@@ -32,6 +32,7 @@ export class Signer {
   }
 }
 
+// refund()
 
 export const refund = async () => {
   const bitbox = new BITBOX();
@@ -41,7 +42,6 @@ export const refund = async () => {
 
   const user = bitbox.HDNode.toKeyPair(bitbox.HDNode.derive(hdNode, 1));
   const cashAddr = bitbox.ECPair.toCashAddress(user);
-  console.log(cashAddr)
   const NETWORK = 'mainnet'
   const RECV_ADDR = 'bitcoincash:qrmz9ktxaptp8q8zacy8f6vftq7793cavvnwqjvtru'
 
