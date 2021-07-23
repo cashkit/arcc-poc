@@ -179,8 +179,8 @@ export class History extends React.Component<any, any> {
 
   render(){
     return (
-      <div className="columns is-multiline">
-        <div className="columns column" style={{ backgroundColor: 'rgb(42, 45, 47)' }}>
+      <div className="columns is-multiline pb-4">
+        <div className="columns column is-full" style={{ backgroundColor: 'rgb(42, 45, 47)' }}>
           <div className="title has-text-white pl-3 pt-3">History</div>
           <div className="column has-text-right">
             <button

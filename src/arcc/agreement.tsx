@@ -98,6 +98,12 @@ export class AgreementContract extends React.Component<any, any> {
     }
   }
 
+  refresh = () => {
+    this.setState({ isLoading: true }, () => {
+      this.props.onChangeContractDetails({ ...this.props, stateIndex: this.props.stateIndex })
+    }) 
+  }
+
   onChangeEpoch = (event) => {
     let epochNum = parseInt(event.target.value)
 
@@ -392,8 +398,16 @@ export class AgreementContract extends React.Component<any, any> {
               <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
             </a>
           </label>
-          <div className="control has-text-grey-lighter">
-              Balance: {agreementContractAmount}
+          <div className="columns column">
+            <div className="column pl-0 is-2 control has-text-grey-lighter">
+                Balance: {agreementContractAmount} 
+            </div>
+            <button
+              onClick={this.refresh}
+              style={{ backgroundColor: 'rgb(30, 32, 35)', borderWidth: 0 }}
+              className="button has-text-white">
+                  Refresh State
+            </button>
           </div>
         </div>
       </>

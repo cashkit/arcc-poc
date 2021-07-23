@@ -161,8 +161,6 @@ export class AgreementContractWrapper extends React.Component<any, any> {
 
     if (contracts[stateIndex+1]){
 
-      console.log(params)
-
       const nextState = await deriveNextStateValues({
         epoch: params.epoch,
         maxAmountPerEpoch: params.maxAmountPerEpoch,
