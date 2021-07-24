@@ -2,7 +2,8 @@
 ARCC - Allowable Revocable Contract Chain System for Bitcoin Cash
 
 
-<img width="1436" alt="Screenshot 2021-07-23 at 8 39 21 PM" src="https://user-images.githubusercontent.com/7335120/126807337-6663778b-22db-41e7-9306-0cc4cda4b8c6.png">
+![Screenshot 2021-07-24 at 8 18 22 PM](https://user-images.githubusercontent.com/7335120/126872166-89be7458-fe45-40e8-9037-4d6d868f26d5.png)
+
 
 
 <h3>Whitepaper</h3>

@@ -51,6 +51,7 @@ contract Agreement(
         int sameEpoch = int(epoch);
         require(sameEpoch >= 0);
 
+        require(tx.time >= int(validFrom));
         int passedTime = int(tx.locktime) - int(validFrom);
         require(passedTime >= 0);
 
@@ -59,7 +60,6 @@ contract Agreement(
 
         // Can be negative here for cases where remaining amount is 0 but a new epoch has started.
         int newRemainingAmount = int(remainingAmount) - amount;
-        // require(within(newRemainingAmount, 0, sameMaxAmountPerEpoch + 1));
 
         if (sameEpoch == 0){
             newRemainingTime = 0; // Direct assignment to 0 saves 1 operation.

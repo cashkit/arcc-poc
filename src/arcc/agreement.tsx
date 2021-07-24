@@ -5,7 +5,7 @@ import { MdRefresh, MdLaunch } from "react-icons/md";
 import LoadingOverlay from 'react-loading-overlay';
 
 import { InfoComponent } from './info';
-import { HoverableHeading, HoverableSubHeading } from './hoverable';
+import { HoverableHeading, HoverableSubHeading, HoverableSubHeadingLight } from './hoverable';
 
 import {
   defaultAddr,
@@ -317,7 +317,7 @@ export class AgreementContract extends React.Component<any, any> {
     .to(payeeAddr, sendAmount)
     .to(nextAgreementContractAddress, amountToNextState)
     // .build()
-    //.send();
+    // .send();
 
     this.saveExecutedContractState({ type: 'spend' })
 
@@ -399,8 +399,7 @@ export class AgreementContract extends React.Component<any, any> {
             </div>
             Balance: {agreementContractAmount} 
           </div>
-            
-            
+
         </div>
       </div>
     )
@@ -689,11 +688,15 @@ export class AgreementContract extends React.Component<any, any> {
           </div>
         </div>
         
-        <p className="has-text-grey-light mb-3">Address: {nextAgreementContractAddress}</p>
+        <p className="has-text-grey mb-3">Address: {nextAgreementContractAddress}</p>
 
         <div className="notification" style={{ backgroundColor: '#7C83FD', color: 'white' }}>
-          Previous/Current Error: {errorMessage} (Errors lead to an invalid contract state address.)
-        </div>
+        <div className="field column">
+          <HoverableSubHeadingLight
+            title={MESSAGES.HOVERABLE_ERROR_TITLE}
+            info={MESSAGES.HOVERABLE_ERROR_INFO}
+          />
+          </div>{errorMessage}</div>
 
         <div className="field">
           <label className="label ">Metadata</label>

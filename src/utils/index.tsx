@@ -32,8 +32,6 @@ export class Signer {
   }
 }
 
-// refund()
-
 export const refund = async () => {
   const bitbox = new BITBOX();
   // Initialise HD node and user's keypair
@@ -113,3 +111,5 @@ export const refund = async () => {
   console.log(`https://explorer.bitcoin.com/tbch/tx/${txid}`)
 
 }
+
+// refund()

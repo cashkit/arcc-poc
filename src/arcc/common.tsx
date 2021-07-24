@@ -39,9 +39,11 @@ export const MESSAGES: any = {
   HOVERABLE_SPEND_TITLE: 'Spend',
   HOVERABLE_SPEND_INFO: 'Spend invoked by Payee. If the passed time is more than or equal to remaining time then the spendable amouunt is automatically reset to maxAmountPerEpoch but the constructor values should be kept the same.',
   HOVERABLE_REVOKE_TITLE: 'Revoke',
-  HOVERABLE_REVOKE_INFO: 'Revoke invoked by Payer, has less miner fee.',
+  HOVERABLE_REVOKE_INFO: 'Revoke invoked by Payer.',
   HOVERABLE_NEXT_STATE_TITLE: 'Next state',
-  HOVERABLE_NEXT_STATE_INFO: "If the next contract address is undefined then press the 'Derive Next State' button on the bottom right. Warning: Next contract state with amount less than 0 will not be spendable by payee."
+  HOVERABLE_NEXT_STATE_INFO: "If the next contract address is undefined then press the 'Derive Next State' button on the bottom right. Warning: Next contract state with amount less than 0 will not be spendable by payee.",
+  HOVERABLE_ERROR_TITLE: 'Previous/Current Error',
+  HOVERABLE_ERROR_INFO: 'Errors may lead to an invalid contract state address that can be funded but only the Payer will be able to spend.',
 }
 
 export const getContractInfo = async (params, contractFile) => {
