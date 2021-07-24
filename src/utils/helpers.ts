@@ -79,6 +79,10 @@ export const deriveNextStateValues = async ({
       remainingTime: newRemainingTime }
   }
 
+export const getTime = () => {
+  const d = new Date()
+  return d.getFullYear() + '-' + (1 + d.getMonth()) + '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds()
+}
 
 export const hexToNum = (hex, length = 4, reverse = true) => {
     const h2b = hexToBin(hex)

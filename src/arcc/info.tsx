@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faScroll } from '@fortawesome/free-solid-svg-icons'
+import { MdMenu } from "react-icons/md";
+
 
 export const InfoComponent = () => {
   const [activeState, setActiveState] = useState(false)
@@ -11,10 +11,8 @@ export const InfoComponent = () => {
 
   return (
     <>
-      <div onClick={toggleActive}>
-        <FontAwesomeIcon className="mr-2" icon={faScroll}></FontAwesomeIcon>
-        Instructions
-      </div>
+      <MdMenu size={25} color={'#7C83FD'} onClick={toggleActive} />
+        
       <div className={`modal ${activeState ? 'is-active' : ''}`}>
         <div className="modal-background" onClick= {toggleActive}></div>
           <div className="modal-card" >

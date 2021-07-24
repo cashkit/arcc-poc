@@ -1,7 +1,7 @@
 import React from 'react';
 import { SignatureTemplate } from 'cashscript';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
+import { MdRefresh, MdLaunch } from "react-icons/md";
+
 import LoadingOverlay from 'react-loading-overlay';
 
 import { InfoComponent } from './info';
@@ -18,7 +18,7 @@ import {
   payer,
   payeeAddr,
   payerAddr } from './common';
-import { deriveNextStateValues } from '../utils/helpers';
+import { deriveNextStateValues, getTime } from '../utils/helpers';
 import '../App.css';
 
 import { BITBOX } from 'bitbox-sdk';
@@ -296,7 +296,7 @@ export class AgreementContract extends React.Component<any, any> {
       this.setState({ errorMessage: MESSAGES.NEXT_STATE_NOT_DERIVE })
       return
     }
-
+    this.saveExecutedContractState({ type: 'spend' })
     if (amountToNextState < dust) {
       this.setState({ errorMessage: MESSAGES.NEXT_STATE_AMOUNT_TOO_LOW })
       return
@@ -352,7 +352,7 @@ export class AgreementContract extends React.Component<any, any> {
 
     let newExecutedContract = {
       type,
-      time: new Date(),
+      time: getTime(),
       agreementContractAmount: balance,
       amountToNextState,
       agreementContractAddress: agreementContract?.address,
@@ -387,23 +387,20 @@ export class AgreementContract extends React.Component<any, any> {
         </div>
         
         <div className="columns">
-          <label className="column is-7">
+          <label className="column">
             <a style={{ color: '#53B8BB' }} target='_' href={`https://explorer.bitcoin.com/bch/address/${agreementContract?.address}`}>
-            {agreementContract?.address} <FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+            {agreementContract?.address} <MdLaunch size={18}/>
             </a>
           </label>
-          <div className="column is-3">
-            <div className="control">
-                Balance: {agreementContractAmount} 
+
+          <div className="columns column is-3">
+            <div className="mr-4">
+              <MdRefresh size={20} color={'#7C83FD'} onClick={this.refresh} />
             </div>
+            Balance: {agreementContractAmount} 
           </div>
-          <div className="column is-2">
-            <button
-              onClick={this.refresh}
-              className="button background-gradient has-text-white">
-                Fetch Balance
-            </button>
-          </div>
+            
+            
         </div>
       </div>
     )
@@ -417,7 +414,7 @@ export class AgreementContract extends React.Component<any, any> {
           <label className="label  pr-3">Payer Address</label>
           <label>
             <a style={{ color: '#53B8BB' }} target='_' href={`https://explorer.bitcoin.com/bch/address/${payerAddr}`}>
-            {payerAddr}<FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+            {payerAddr}<MdLaunch size={18}/>
             </a>
           </label>
         </div>
@@ -426,7 +423,7 @@ export class AgreementContract extends React.Component<any, any> {
           <label className="label  pr-3">Payee Address</label>
           <label>
             <a style={{ color: '#53B8BB' }} target='_' href={`https://explorer.bitcoin.com/bch/address/${payeeAddr}`}>
-            {payeeAddr}<FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+            {payeeAddr}<MdLaunch size={18}/>
             </a>
           </label>
         </div>
@@ -528,7 +525,12 @@ export class AgreementContract extends React.Component<any, any> {
 
         <div className="columns column pl-0">
           <div className="column">
-            <label className="label ">Valid From</label>
+            <div className="columns pl-3">
+              <HoverableSubHeading
+                title={MESSAGES.HOVERABLE_VALID_FROM_TITLE}
+                info={MESSAGES.HOVERABLE_VALID_FROM_INFO}
+            />
+            </div>
             <div className="control">
               <input
                 value={this.props?.validFrom}
@@ -567,7 +569,7 @@ export class AgreementContract extends React.Component<any, any> {
 
     const { agreementContractAmount } = this.props;
     return (
-      <div className="column">
+      <div className="column is-7">
         <div className="columns is-4 mt-2 pl-3">
           <HoverableHeading
             title={MESSAGES.HOVERABLE_SPEND_TITLE}
@@ -681,16 +683,13 @@ export class AgreementContract extends React.Component<any, any> {
                 title={MESSAGES.HOVERABLE_NEXT_STATE_TITLE}
                 info={MESSAGES.HOVERABLE_NEXT_STATE_INFO}
               />
-            <div className="control">
-              Address
-              <p className="content has-text-grey-light"> {nextAgreementContractAddress}</p>
-            </div>
           </div>
-
           <div className="column has-text-right">
             <button onClick={this.createNextState} className="button background-gradient has-text-white">Derive Next State </button>
           </div>
         </div>
+        
+        <p className="has-text-grey-light mb-3">Address: {nextAgreementContractAddress}</p>
 
         <div className="notification" style={{ backgroundColor: '#7C83FD', color: 'white' }}>
           Previous/Current Error: {errorMessage} (Errors lead to an invalid contract state address.)
@@ -729,7 +728,7 @@ export class AgreementContract extends React.Component<any, any> {
               {this.renderConstructorDetails()}
               {this.renderInputParams()}
             </div>
-            <div className="columns pb-2" style={{ borderBottom: '4px solid #7C83FD' }}> 
+            <div className="columns pb-2"> 
               {this.renderSpendDetails()}
               {this.renderRevokeDetails()}
             </div>

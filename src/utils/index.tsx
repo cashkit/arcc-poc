@@ -5,7 +5,7 @@ import { BITBOX } from 'bitbox-sdk';
 
 export const truncate = (str) => {
 	const strlen = str.length
-	return strlen > 10 ? str.substring(0, 20) + "......" + str.substring(strlen-10, strlen): str;
+	return strlen > 10 ? str.substring(0, 20) + "......" + str.substring(strlen-5, strlen): str;
 }
 
 export class Signer {

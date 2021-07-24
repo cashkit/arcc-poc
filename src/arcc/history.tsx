@@ -1,6 +1,5 @@
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
+import { MdClear, MdLaunch, MdRefresh } from "react-icons/md";
 import { truncate } from '../utils';
 
 
@@ -89,7 +88,7 @@ export class History extends React.Component<any, any> {
           Next Agreement Contract Address:
           <div className="">
             <a style={{ color: '#53B8BB' }} target='_' href={`https://explorer.bitcoin.com/bch/address/${contract?.nextAgreementContractAddress}`}>
-            {truncate(contract?.nextAgreementContractAddress)}<FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+            {truncate(contract?.nextAgreementContractAddress)}<MdLaunch size={18}/>
             </a>
           </div>
         </div>
@@ -104,12 +103,12 @@ export class History extends React.Component<any, any> {
         <div key={index} className="box">
           <div className="columns">
             <div className="column ">Type: {contract?.type}</div>
-            <div className="column title has-text-grey is-1 mr-4 pt-0" onClick={() => this.removeSelected(index)}>x</div>
+            <MdClear size={20} className="mr-3 mt-3" color={'#7C83FD'} onClick={() => this.removeSelected(index)} />
           </div>
           
           <div className="columns">
             <div className="column ">Time:</div>
-            <div className="column  is-6">{contract?.time}</div>
+            <div className="column  is-8">{contract?.time}</div>
           </div>
 
           <div className="columns">
@@ -117,7 +116,7 @@ export class History extends React.Component<any, any> {
               Agreement Contract Address:
               <div>
                 <a style={{ color: '#53B8BB' }} target='_' href={`https://explorer.bitcoin.com/bch/address/${contract?.agreementContractAddress}`}>
-                {truncate(contract?.agreementContractAddress)}<FontAwesomeIcon className="ml-3" icon={faExternalLinkAlt} />
+                {truncate(contract?.agreementContractAddress)}<MdLaunch size={18}/>
                 </a>
               </div>
             </div>
@@ -173,20 +172,12 @@ export class History extends React.Component<any, any> {
 
   render(){
     return (
-      <div className="column card-gradient">
+      <div className="card-gradient">
         <div className="box">
           <div className="title">History</div>
           <div className="has-text-right">
-            <button
-              onClick={this.refreshHistory}
-              className="button mr-2 background-gradient has-text-white">
-                Refresh
-            </button>
-            <button
-              onClick={this.clearAll}
-              className="button background-gradient has-text-white">
-                Clear
-            </button>
+            <MdRefresh size={20} color={'#7C83FD'} onClick={this.refreshHistory} />
+            <MdClear size={20} className="ml-3" color={'#7C83FD'} onClick={this.clearAll} />
           </div>
         </div>
         {this.renderExecuteStateDetails()}
