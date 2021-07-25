@@ -19,14 +19,10 @@ export const isValidEpoch = ({ epoch }) => {
 
 export const isValidMaxAmountPerEpoch = ({ maxAmountPerEpoch }) => {
   if (maxAmountPerEpoch >= DUST){
-    // TODO: Also add limit of 4 byte integer.
+    // TODO: Add limit of 4 byte integer.
     return true
   }
   return false
-}
-
-export const isValidContractState = () => {
-  // TODO
 }
 
 export const isValidRemainingAmount = ({ remainingAmount, maxAmountPerEpoch }) => {
@@ -42,6 +38,32 @@ export const isValidRemainingTime = ({ epoch, remainingTime }) => {
   }
   return false
 }
+
+export const isValidValidFrom = ({ validFrom }) => {
+  // TODO: Add limit of 4 byte integer.
+  if (validFrom >= 0){
+    return true
+  }
+  return false
+}
+
+export const isValidContractState = ({ epoch, maxAmountPerEpoch, remainingTime, remainingAmount, validFrom, amount }) => {
+  let isValid = false
+
+  if (isValidAmount({ amount, maxAmountPerEpoch, remainingAmount }) &&
+      isValidEpoch({ epoch }) &&
+      isValidMaxAmountPerEpoch({ maxAmountPerEpoch }) &&
+      isValidRemainingAmount({ remainingAmount, maxAmountPerEpoch }) &&
+      isValidRemainingTime({ epoch, remainingTime }) &&
+      isValidValidFrom({ validFrom })
+  ) {
+    isValid = true
+  }
+
+  return isValid
+
+}
+
 
 /**
  *  Returns the max amount payee can spend at any given moment of time. 

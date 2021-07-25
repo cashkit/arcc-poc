@@ -324,7 +324,7 @@ export class AgreementContract extends React.Component<any, any> {
       .withHardcodedFee(minerFee)
       .to(payeeAddr, sendAmount)
       .to(nextAgreementContractAddress, amountToNextState)
-      // .build()
+      //.build()
       .send();
 
       this.saveExecutedContractState({ type: 'spend' })

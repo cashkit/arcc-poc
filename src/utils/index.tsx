@@ -11,7 +11,6 @@ export const truncate = (str) => {
 export class Signer {
   constructor(public keypair: ECPair) {}
 
-  // Encode a baton and quantity into a byte sequence of 8 bytes (4 bytes per value)
   createMessage(baton: number, quantity: number): Buffer {
     const lhs = Buffer.alloc(4, 0);
     const rhs = Buffer.alloc(4, 0);
@@ -20,7 +19,6 @@ export class Signer {
     return Buffer.concat([lhs, rhs]);
   }
 
-  // Encode a baton and messageType into a byte sequence of 8 bytes (4 bytes per value)
   createSingleMessage(messageType: number): Buffer {
     const lhs = Buffer.alloc(4, 0);
     new Script().encodeNumber(messageType).copy(lhs);
