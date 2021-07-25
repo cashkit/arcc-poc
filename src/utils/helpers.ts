@@ -9,75 +9,7 @@ import {
     lockingBytecodeToCashAddress,
     cashAddressToLockingBytecode
 } from '@bitauth/libauth';
-import { BITBOX } from 'bitbox-sdk';
-const bitbox = new BITBOX();
 
-
-export const isValidAmount = () => {
-
-}
-
-export const isValidEpoch = () => {
-
-}
-
-export const isValidMaxAmountPerEpoch = () => {
-
-}
-
-export const isValidContractState = () => {
-
-}
-
-export const isValidRemainingAmount = () => {
-
-}
-
-export const isValidRemainingTime = () => {
-
-}
-
-
-export const deriveNextStateValues = async ({
-    epoch,
-    maxAmountPerEpoch,
-    remainingAmount,
-    validFrom,
-    remainingTime,
-    amount }) => {
-  
-    const currentBlockHeight = await bitbox.Blockchain.getBlockCount()
-    const passedTime = currentBlockHeight - validFrom
-  
-    let newRemainingTime = remainingTime
-    let newRemainingAmount = remainingAmount - amount;
-    let sameMaxAmountPerEpoch = maxAmountPerEpoch
-    let sameEpoch = epoch
-  
-    if (sameEpoch === 0){
-      newRemainingTime = 0
-      newRemainingAmount = maxAmountPerEpoch
-    } else {
-      if (passedTime >= newRemainingTime){
-        newRemainingAmount = sameMaxAmountPerEpoch - amount;
-      }
-      if (newRemainingTime >= (passedTime % sameEpoch)) {
-        newRemainingTime = newRemainingTime - (passedTime % sameEpoch);
-      } else {
-        newRemainingTime = sameEpoch - ((passedTime % sameEpoch) - newRemainingTime);
-      }
-    }
-  
-    if (newRemainingTime === 0) {
-      // In case of collision.
-      newRemainingTime = sameEpoch;
-    }
-  
-    return {
-      validFrom: currentBlockHeight,
-      remainingAmount: newRemainingAmount,
-      remainingTime: newRemainingTime }
-  }
 
 export const getTime = () => {
   const d = new Date()

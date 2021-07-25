@@ -26,6 +26,7 @@ export const MESSAGES: any = {
   REVOKE_AMOUNT_TOO_LOW: 'Revokable amount should be greater than 546',
   SPEND_AMOUNT_TOO_LOW: 'Spending amount should be greater than 546',
   REMAINING_AMOUNT_HIGH: 'Remaining Amount should be less than maxAmountPerEpoch',
+  HOVERABLE_ACTUAL_SPENDABLE_INFO: 'The remaining time has passed and a new epoch has started.',
   HOVERABLE_EPOCH_TITLE: 'Epoch',
   HOVERABLE_EPOCH_INFO: 'Time frame in block height.',
   HOVERABLE_MAX_AMOUNT_PER_EPOCH_TITLE: 'MaxAmount/Epoch',

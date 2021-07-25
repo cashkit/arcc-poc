@@ -18,7 +18,8 @@ import {
   payer,
   payeeAddr,
   payerAddr } from './common';
-import { deriveNextStateValues, getTime } from '../utils/helpers';
+import { getTime } from '../utils/helpers';
+import { deriveNextStateValues } from '../lib';
 import '../App.css';
 
 import { BITBOX } from 'bitbox-sdk';
@@ -93,7 +94,7 @@ export class AgreementContract extends React.Component<any, any> {
 
   refresh = () => {
     this.setState({ isLoading: true }, () => {
-      this.props.onChangeContractDetails({ ...this.props, stateIndex: this.props.stateIndex })
+      this.props.onChangeContractDetails({ ...this.props, amount: this.state.sendAmountState, stateIndex: this.props.stateIndex })
     }) 
   }
 
@@ -173,6 +174,7 @@ export class AgreementContract extends React.Component<any, any> {
 
   onChangeSendAmount = (event) => {
     const remainingAmountFromProps = this.props?.remainingAmount
+    const actualSpendableAmount = this.props?.actualSpendableAmount
 
     let newSendAmount = parseInt(event.target.value)
 
@@ -184,8 +186,8 @@ export class AgreementContract extends React.Component<any, any> {
     if (newSendAmount < dust) {
       errorMessage = MESSAGES.SPEND_AMOUNT_TOO_LOW
     }
-    if (newSendAmount > remainingAmountFromProps) {
-      errorMessage = `Spending amount should be less than ${remainingAmountFromProps}`
+    if (newSendAmount > actualSpendableAmount) {
+      errorMessage = `Spending amount should be less than ${actualSpendableAmount}`
     }
 
     this.setState({ errorMessage, isLoading: true, sendAmountState: newSendAmount }, () => {
@@ -268,17 +270,22 @@ export class AgreementContract extends React.Component<any, any> {
       return
     }
 
-    const tx = await agreementContract.functions
-    .revoke(new SignatureTemplate(payer))
-    .withHardcodedFee(revokeMinerFeeState)
-    .to(defaultAddr, change)
-    // .build()
-    .send()
+    try {
+      const tx = await agreementContract.functions
+      .revoke(new SignatureTemplate(payer))
+      .withHardcodedFee(revokeMinerFeeState)
+      .to(defaultAddr, change)
+      // .build()
+      .send()
 
-    this.saveExecutedContractState({ type: 'revoke' })
+      this.saveExecutedContractState({ type: 'revoke' })
 
-    console.log(tx)
-    console.log(JSON.stringify(tx))
+      console.log(tx)
+      console.log(JSON.stringify(tx))
+
+    } catch(e) {
+      this.setState({ errorMessage: 'Transaction Failed' })
+    }
   }
 
   submitSpendTransaction = async () => {
@@ -296,7 +303,7 @@ export class AgreementContract extends React.Component<any, any> {
       this.setState({ errorMessage: MESSAGES.NEXT_STATE_NOT_DERIVE })
       return
     }
-    this.saveExecutedContractState({ type: 'spend' })
+
     if (amountToNextState < dust) {
       this.setState({ errorMessage: MESSAGES.NEXT_STATE_AMOUNT_TOO_LOW })
       return
@@ -307,22 +314,26 @@ export class AgreementContract extends React.Component<any, any> {
       return
     }
 
-    const aggrementTx = await agreementContract.functions
-    .spend(
-      new SignatureTemplate(payee),
-      amountToNextState,
-      sendAmount
-    )
-    .withHardcodedFee(minerFee)
-    .to(payeeAddr, sendAmount)
-    .to(nextAgreementContractAddress, amountToNextState)
-    // .build()
-    // .send();
+    try {
+      const aggrementTx = await agreementContract.functions
+      .spend(
+        new SignatureTemplate(payee),
+        amountToNextState,
+        sendAmount
+      )
+      .withHardcodedFee(minerFee)
+      .to(payeeAddr, sendAmount)
+      .to(nextAgreementContractAddress, amountToNextState)
+      // .build()
+      .send();
 
-    this.saveExecutedContractState({ type: 'spend' })
+      this.saveExecutedContractState({ type: 'spend' })
+      console.log(aggrementTx)
+      console.log(JSON.stringify(aggrementTx))
 
-    console.log(aggrementTx)
-    console.log(JSON.stringify(aggrementTx))
+    } catch(e) {
+      this.setState({ errorMessage: 'Transaction Failed' })
+    }
   }
 
   saveExecutedContractState = async ({ type }) => {
@@ -575,7 +586,7 @@ export class AgreementContract extends React.Component<any, any> {
             info={MESSAGES.HOVERABLE_SPEND_INFO}
           />
         </div>
-
+        
         <div className="columns">
           <div className="column">
             <label className="label ">Amount</label>
@@ -589,6 +600,10 @@ export class AgreementContract extends React.Component<any, any> {
                 placeholder="Send Amount"
               />
             </div>
+             <HoverableSubHeading
+            title={`Actual Spendable Amount: ${this.props.actualSpendableAmount}`}
+            info={MESSAGES.HOVERABLE_ACTUAL_SPENDABLE_INFO}
+          />
           </div>
 
           <div className="column">
@@ -714,6 +729,7 @@ export class AgreementContract extends React.Component<any, any> {
       <div className="columns is-multiline mb-4 pb-4">
         <div className="box columns column is-full is-centered card-gradient">
           <div className="column light-dark-theme-color">
+          
             {this.renderHeaderDetails()}
             <LoadingOverlay
               active={isLoading}
@@ -747,6 +763,7 @@ export class AgreementContract extends React.Component<any, any> {
             <div className="column has-text-centered"> <strong className="has-text-white">||</strong> </div>
           </div>
         </div>
+        
       </div>
     )
   }

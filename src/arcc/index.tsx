@@ -13,7 +13,7 @@ import {
   defaultRemainingAmount,
 } from './common';
 
-import { deriveNextStateValues } from '../utils/helpers';
+import { deriveNextStateValues, getSpendableAmount } from '../lib';
 
 
 // import { hexToNum } from '../utils/helpers';
@@ -61,6 +61,14 @@ export class AgreementContractWrapper extends React.Component<any, any> {
 
     const res = await getContractInfo(agreementContractParams, 'Agreement.cash')
 
+    const actualSpendableAmount = await getSpendableAmount({
+      epoch: epoch,
+      maxAmountPerEpoch: maxAmountPerEpoch,
+      remainingAmount: remainingAmount,
+      validFrom: validFrom,
+      remainingTime: remainingTimeNum
+    })
+
     const currentContract = {
         payerPk,
         payeePk,
@@ -69,6 +77,7 @@ export class AgreementContractWrapper extends React.Component<any, any> {
         remainingTime: remainingTimeNum,
         remainingAmount,
         validFrom,
+        actualSpendableAmount,
         agreementContract: res[0],
         agreementContractAmount: res[1],
         agreementScriptHash: res[2]
@@ -83,6 +92,7 @@ export class AgreementContractWrapper extends React.Component<any, any> {
   }
 
   createNextState = async (params) => {
+    const { contracts } = this.state;
     const nextState = params.stateIndex;
 
     const agreementContractParams = [
@@ -95,32 +105,37 @@ export class AgreementContractWrapper extends React.Component<any, any> {
       numberToBinUint32LE(params.validFrom)
     ]
 
-    getContractInfo(agreementContractParams, 'Agreement.cash').then((res) => {
-      const { contracts } = this.state;
-      
-      const nextContract = {
-        payerPk,
-        payeePk,
-        epoch: params.epoch,
-        maxAmountPerEpoch: params.maxAmountPerEpoch,
-        remainingTime: params.remainingTime,
-        remainingAmount: params.remainingAmount,
-        validFrom: params.validFrom,
-        agreementContract: res[0],
-        agreementContractAmount: res[1],
-        agreementScriptHash: res[2]
-      }
-
-      contracts.splice(nextState, 1);
-      contracts.splice(nextState, 0, nextContract);
-      contracts.splice(nextState + 2, contracts.length - (nextState + 1));
-
-      this.setState(() => ({
-        contracts: [...contracts]
-      }))
-    }).catch((e) => {
-      console.log(e)
+    const res = await getContractInfo(agreementContractParams, 'Agreement.cash')
+    
+    const actualSpendableAmount = await getSpendableAmount({
+      epoch: params.epoch,
+      maxAmountPerEpoch: params.maxAmountPerEpoch,
+      remainingAmount: params.remainingAmount,
+      validFrom: params.validFrom,
+      remainingTime: params.remainingTime
     })
+
+    const nextContract = {
+      payerPk,
+      payeePk,
+      epoch: params.epoch,
+      maxAmountPerEpoch: params.maxAmountPerEpoch,
+      remainingTime: params.remainingTime,
+      remainingAmount: params.remainingAmount,
+      validFrom: params.validFrom,
+      actualSpendableAmount,
+      agreementContract: res[0],
+      agreementContractAmount: res[1],
+      agreementScriptHash: res[2]
+    }
+
+    contracts.splice(nextState, 1);
+    contracts.splice(nextState, 0, nextContract);
+    contracts.splice(nextState + 2, contracts.length - (nextState + 1));
+
+    this.setState(() => ({
+      contracts: [...contracts]
+    }))
   }
 
   /**
@@ -145,6 +160,14 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     const { contracts } = this.state;
     let currentContract = contracts[stateIndex];
 
+    const actualSpendableAmount = await getSpendableAmount({
+      epoch: params.epoch,
+      maxAmountPerEpoch: params.maxAmountPerEpoch,
+      remainingAmount: params.remainingAmount,
+      validFrom: params.validFrom,
+      remainingTime: params.remainingTime
+    })
+
     currentContract = {
       payerPk,
       payeePk,
@@ -153,6 +176,7 @@ export class AgreementContractWrapper extends React.Component<any, any> {
       remainingTime: params.remainingTime,
       remainingAmount: params.remainingAmount,
       validFrom: params.validFrom,
+      actualSpendableAmount,
       agreementContract: currentAgreementRes[0],
       agreementContractAmount: currentAgreementRes[1],
       agreementScriptHash: currentAgreementRes[2]
@@ -170,6 +194,14 @@ export class AgreementContractWrapper extends React.Component<any, any> {
         validFrom: params.validFrom,
         remainingTime: params.remainingTime,
         amount: params.amount
+      })
+
+      const nextStateActualSpendableAmount = await getSpendableAmount({
+        epoch: params.epoch,
+        maxAmountPerEpoch: params.maxAmountPerEpoch,
+        remainingAmount: nextState.remainingAmount,
+        validFrom: nextState.validFrom,
+        remainingTime: nextState.remainingTime
       })
 
       const nextAgreementContractParams = [
@@ -190,6 +222,7 @@ export class AgreementContractWrapper extends React.Component<any, any> {
         remainingAmount: nextState.remainingAmount,
         remainingTime: nextState.remainingTime,
         validFrom: nextState.validFrom,
+        actualSpendableAmount: nextStateActualSpendableAmount,
         agreementContract: nextAgreementRes[0],
         agreementContractAmount: nextAgreementRes[1],
         agreementScriptHash: nextAgreementRes[2]
