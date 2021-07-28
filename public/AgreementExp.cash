@@ -1,0 +1,104 @@
+pragma cashscript ^0.6.3;
+
+/**
+ * @param: payerPk: Pubkey of the payer.
+ * @param: payeePk: Pubkey of the payee.
+ * @param: epoch: Each epoch represents a timeframe, epoch = 1 is 1 block.
+ * @param: maxAmountPerEpoch: Max amount allowed to be spend by payee per epoch.
+ * @param: remainingTime: The remaining time after which a new epoch will start.
+ * @param: remaningAmount: Remaining amount that can be withdrawan from the contract by payee before next epoch starts.
+ * @param: validFrom: The blockheight/time of contract/state creation.
+ *
+ */
+contract Agreement(
+        pubkey payerPk,
+        pubkey payeePk,
+        bytes4 epoch,
+        bytes4 maxAmountPerEpoch,
+        bytes4 remainingTime,
+        bytes4 remainingAmount,
+        bytes4 validFrom)
+    {
+
+    /*
+    * Can only be used by the payer.
+    * @param: payerSig: signature of payerPk.
+    */
+    function revoke(sig payerSig){
+        require(checkSig(payerSig, payerPk));
+    }
+
+    /**
+     * Can only be used by payee.
+     * @param: payeeSig: signature of the payee.
+     * @param: amountToNextState: Amount sent should be greater than 546 i.e the dust limit
+     * otherwise the next state of contract will not be spendable by payee. Need more funds.
+     * @param: amount: Amount to be sent to the payeePkh
+     *
+     * Note: It's the responsibility of the payee to calculate the miner fee when making a transaction.
+     * Hence, amountToNextState = inputValue - amount - minerfee
+     */
+    function spend(
+        sig payeeSig,
+        int amountToNextState,
+        int amount,
+    ) {
+        // Only necessary castings are used to reduce size. All other casting which either increase
+        // the number of operations or keep the size same are ignored.
+        
+        // Check payee's signature.
+        require(checkSig(payeeSig, payeePk));
+
+        // After the contract is initiated the value of maxAmountPerEpoch is never changed, hence it's checking is not included in the contract's code.
+        // At the time of creating the contract, payer and payee must make sure that value of sameMaxAmountPerEpoch is >= 546;
+        // require(sameMaxAmountPerEpoch >= 546);
+        int sameMaxAmountPerEpoch = int(maxAmountPerEpoch);
+
+        // Make sure that the amount being spent is greater than 546 and less than maxAmountPerEpoch.
+        require(within(amount, 546, sameMaxAmountPerEpoch + 1));
+
+        // Expects epoch to be >= 0; Since it's a static variable. It's value is not checked here.
+        // At the time of creating the contract, payer and payee must make sure that value of epoch is >= 0;
+        // require(sameEpoch >= 0);
+        // A valid epoch must always be >= 0. For cases where epoch is 0, the contract is not bound by time but only by amount. 
+        int sameEpoch = int(epoch);
+
+        // Each transaction rewrites the validFrom variable because it's the locktime of the transaction.
+        // passedTime is the number of blocks passed after the last transaction was done and is used to calculate the remainingTime.
+        int passedTime = int(tx.locktime) - int(validFrom);
+        require(passedTime >= 0);
+
+        int modTime = passedTime % sameEpoch;
+        // currentRemainingTime is later used to calculate the newRemainingTime.
+        int currentRemainingTime = int(remainingTime);
+        // newRemainingTime is set to 0 here to save some operations. i.e assignment in the sameEpoch == 0 block.
+        int newRemainingTime = 0;
+        // Can be negative here for cases where remaining amount is 0 but a new epoch has started.
+        // Therefore, this variable will be over-written later in some cases.
+        // int newRemainingAmount = int(remainingAmount) - amount;
+        int newRemainingAmount = sameMaxAmountPerEpoch;
+        if (sameEpoch != 0){
+            if (currentRemainingTime > modTime) {
+                // Inside the same timeframe.
+                newRemainingAmount = int(remainingAmount) - amount;
+                newRemainingTime = currentRemainingTime - modTime;
+            } else {
+                // When new epoch has started.
+                newRemainingTime = sameEpoch - (modTime - currentRemainingTime);
+                newRemainingAmount = sameMaxAmountPerEpoch - amount;
+            }
+        }
+
+        // Create a new contract with timelock as the current block height or provided locktime during contract building.
+        // Note that the constructor parameters are added in the reverse order.
+        // So validFrom is actually the first statement in the contract bytecode.
+        bytes nextState = 0x04 + tx.locktime + 0x04 + bytes4(newRemainingAmount) + 0x04 + bytes4(newRemainingTime) + tx.bytecode.split(15)[1];
+    
+        // Create a simulated state(Helps in enforcing spendable restrictions) by sending the money to the new contract with same
+        // parameters except the timelock/validFrom.
+        bytes34 toRecipient = new OutputP2PKH(bytes8(amount), hash160(payeePk));
+        bytes32 toContract = new OutputP2SH(bytes8(amountToNextState), hash160(nextState));
+
+        require(hash256(toRecipient + toContract) == tx.hashOutputs);
+    }
+}
