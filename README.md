@@ -15,7 +15,7 @@ There can be a range of applications/mechanisms possible including but not limit
 
 <h3>Contract</h3>
 
-[Agreement.cash](https://github.com/kiok46/arcc/blob/main/Agreement.cash)
+[Agreement.cash](https://github.com/kiok46/arcc/blob/main/contracts/Agreement.cash)
 
 
 <h3>Instructions</h3>
