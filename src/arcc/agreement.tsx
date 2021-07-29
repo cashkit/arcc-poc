@@ -19,7 +19,7 @@ import {
   payeeAddr,
   payerAddr } from './common';
 import { getTime } from '../utils/helpers';
-import { deriveNextStateValues } from '../lib';
+import { deriveNextStateValues, isValidRemainingTime } from '../lib';
 import '../App.css';
 
 import { BITBOX } from 'bitbox-sdk';
@@ -113,28 +113,34 @@ export class AgreementContract extends React.Component<any, any> {
 
   onChangeMaxAmountPerEpoch = (event) => {
     let maxAmountPerEpochNum = parseInt(event.target.value)
+    let errorMessage;
     if (isNaN(maxAmountPerEpochNum)){
       maxAmountPerEpochNum = 0
     }
 
     if (maxAmountPerEpochNum < dust) {
-      this.setState({ errorMessage: MESSAGES.MAX_AMOUNT_PER_EPOCH_TOO_LOW })
+      errorMessage = MESSAGES.MAX_AMOUNT_PER_EPOCH_TOO_LOW
     }
     const maxAmountPerEpoch = maxAmountPerEpochNum
-    this.setState({ isLoading: true }, () => {
+    this.setState({ isLoading: true, errorMessage }, () => {
       this.props.onChangeContractDetails({ ...this.props, amount: this.state.sendAmountState, maxAmountPerEpoch, stateIndex: this.props.stateIndex })
     })
   }
 
   onChangeRemainingTime = (event) => {
-    let remainingTimeNum = parseInt(event.target.value)
+    const { epoch } = this.props;
+    let remainingTime = parseInt(event.target.value)
 
-    if (isNaN(remainingTimeNum)){
-      remainingTimeNum = 0
+    if (isNaN(remainingTime)){
+      remainingTime = epoch
     }
 
-    const remainingTime = remainingTimeNum
-    this.setState({ isLoading: true }, () => {
+    let errorMessage;
+    if (!isValidRemainingTime({ epoch, remainingTime })){
+      errorMessage = MESSAGES.INVALID_REMAINING_TIME
+    }
+
+    this.setState({ isLoading: true, errorMessage }, () => {
       this.props.onChangeContractDetails({ ...this.props, amount: this.state.sendAmountState, remainingTime, stateIndex: this.props.stateIndex })
     })
   }

@@ -25,6 +25,7 @@ export const MESSAGES: any = {
   NEXT_STATE_AMOUNT_TOO_LOW: 'Amount to next state should be greater than 546. amountToNextState = balance - minerFee - sendAmount',
   REVOKE_AMOUNT_TOO_LOW: 'Revokable amount should be greater than 546',
   SPEND_AMOUNT_TOO_LOW: 'Spending amount should be greater than 546',
+  INVALID_REMAINING_TIME: 'Remaining Time should be > 0 and <= epoch. (remainingtime should be 0 when epoch is 0)',
   REMAINING_AMOUNT_HIGH: 'Remaining Amount should be less than maxAmountPerEpoch',
   HOVERABLE_ACTUAL_SPENDABLE_INFO: 'The remaining time has passed and a new epoch has started.',
   HOVERABLE_EPOCH_TITLE: 'Epoch',
