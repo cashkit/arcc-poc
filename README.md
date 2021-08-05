@@ -15,7 +15,7 @@ There can be a range of applications/mechanisms possible including but not limit
 
 <h3>Contract</h3>
 
-[Agreement.cash](https://github.com/kiok46/arcc/blob/main/contracts/Agreement.cash)
+[arcc.cash](https://github.com/kiok46/arcc/blob/main/contracts/arcc.cash)
 
 
 <h3>Instructions</h3>
@@ -31,12 +31,11 @@ There can be a range of applications/mechanisms possible including but not limit
 
 - [Manual Tests](https://github.com/kiok46/arcc/blob/main/ARCC_Manual_Tests.pages)
 
+
 <h3>Feedback?</h3>
 
 - Open an issue here. ✔️
-or
-- Email me: kuldeepbb.grewal@gmail.com
-
+- Message me on https://t.me/arccsystem
 
 <h3>Donations 🍕/⛰?</h3>
 

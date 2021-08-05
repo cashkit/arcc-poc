@@ -1,5 +1,6 @@
+import { binToHex } from '@bitauth/libauth';
 import { getTemplateContract } from '../contracts';
-import { buildLockScriptHash } from '../utils/helpers';
+import { buildLockScriptP2SH, buildLockScriptP2PKH } from '../utils/helpers';
 
 import { getPayerWallet, getPayeeWallet } from '../wallet';
 
@@ -9,6 +10,7 @@ export const defaultAddr = 'bitcoincash:qz2g9hg86tpdk0rhk9qg45s6nj3xqqerkvcmz5rr
 export const [ payer, payerPk, payerPkh, payerAddr ] = getPayerWallet()
 export const [ payee, payeePk, payeePkh, payeeAddr ] = getPayeeWallet()
 
+
 export const dust = 546
 export const defaultEpoch = 2;
 export const defaultMaxAmountPerEpoch = 3000
@@ -17,6 +19,7 @@ export const defaultRemainingAmount = defaultMaxAmountPerEpoch
 export const initialSendAmountState = 1000
 export const initialMinerFeeState = 1116 // Close to min relay fee of the network.
 export const initialRevokeMinerFeeState = 542
+export const expireAfter = 25920 // Contract expires after 6 months.
 
 export const MESSAGES: any = {
   EPOCH_TOO_LOW: 'Epoch should be greater than 0',
@@ -53,7 +56,7 @@ export const getContractInfo = async (params, contractFile) => {
 
   const contract = await getTemplateContract(params, contractFile)
   const redeemScript = contract.getRedeemScriptHex();
-  const completeLockScript = await buildLockScriptHash(redeemScript);
+  const contractLockScript = await buildLockScriptP2SH(redeemScript);
 
   const Utxos = await contract.getUtxos()
   // @ts-ignore
@@ -69,6 +72,6 @@ export const getContractInfo = async (params, contractFile) => {
     });
   }
 
-  return [contract, amount, completeLockScript]
+  return [contract, amount, contractLockScript]
 }
 

@@ -14,11 +14,11 @@ import {
   initialRevokeMinerFeeState,
   initialSendAmountState,
   MESSAGES,
-  payee,
   payer,
   payeeAddr,
-  payerAddr } from './common';
-import { getTime } from '../utils/helpers';
+  payerAddr, 
+  payerPk} from './common';
+import { getTime, lockScriptToAddress } from '../utils/helpers';
 import { deriveNextStateValues, isValidRemainingTime } from '../lib';
 import '../App.css';
 
@@ -234,8 +234,9 @@ export class AgreementContract extends React.Component<any, any> {
       remainingTime,
       remainingAmount,
       validFrom,
-      payerPk,
-      payeePk } = this.props;
+      expiration,
+      payerPkh,
+      payeeHash } = this.props;
     
     const nextState = await deriveNextStateValues({
       epoch,
@@ -247,8 +248,9 @@ export class AgreementContract extends React.Component<any, any> {
     })
 
     let nextContractProps = {
-      payerPk,
-      payeePk,
+      payerPkh,
+      payeeHash,
+      expiration,
       epoch,
       maxAmountPerEpoch,
       remainingTime: nextState.remainingTime,
@@ -278,7 +280,10 @@ export class AgreementContract extends React.Component<any, any> {
 
     try {
       const tx = await agreementContract.functions
-      .revoke(new SignatureTemplate(payer))
+      .revoke(
+        payerPk,
+        new SignatureTemplate(payer)
+      )
       .withHardcodedFee(revokeMinerFeeState)
       .to(defaultAddr, change)
       // .build()
@@ -290,6 +295,7 @@ export class AgreementContract extends React.Component<any, any> {
       console.log(JSON.stringify(tx))
 
     } catch(e) {
+      console.log(e)
       this.setState({ errorMessage: 'Transaction Failed' })
     }
   }
@@ -323,11 +329,13 @@ export class AgreementContract extends React.Component<any, any> {
     try {
       const aggrementTx = await agreementContract.functions
       .spend(
-        new SignatureTemplate(payee),
+        payerPk,
+        new SignatureTemplate(payer),
         amountToNextState,
         sendAmount
       )
       .withHardcodedFee(minerFee)
+      // .to("bitcoincash:pqucdrggk9t4u7hfk0y3pn0v949t05r8mycynq29dn", sendAmount) a manual test for a P2SH address
       .to(payeeAddr, sendAmount)
       .to(nextAgreementContractAddress, amountToNextState)
       //.build()
@@ -338,6 +346,7 @@ export class AgreementContract extends React.Component<any, any> {
       console.log(JSON.stringify(aggrementTx))
 
     } catch(e) {
+      console.log(e)
       this.setState({ errorMessage: 'Transaction Failed' })
     }
   }
@@ -568,9 +577,9 @@ export class AgreementContract extends React.Component<any, any> {
           </div>
 
           <div className="column">
-            <label className="label">Current Block Height</label>
+            <label className="label">Expiration</label>
             <div className="control pt-2">
-              {this.state.currentBlockHeight}
+              {this.props?.expiration}
             </div>
           </div>
         </div>

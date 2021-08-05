@@ -1,23 +1,24 @@
 import React from 'react';
 import { numberToBinUint32LE } from '@bitauth/libauth';
 import { BITBOX } from 'bitbox-sdk';
-
+import { binToHex } from '@bitauth/libauth';
 import { AgreementContract } from './agreement';
 import { History } from './history';
 import {
   getContractInfo,
-  payerPk,
+  payerPkh,
   payeePk,
+  expireAfter,
   defaultEpoch,
   defaultMaxAmountPerEpoch,
   defaultRemainingAmount,
 } from './common';
-
+import { buildLockScriptP2PKH } from '../utils/helpers';
 import { deriveNextStateValues, getSpendableAmount } from '../lib';
 
-
-// import { hexToNum } from '../utils/helpers';
-// console.log(hexToNum("a6a20a00"))
+import { hexToNum } from '../utils/helpers';
+console.log(hexToNum("2202", 2 ))
+console.log(hexToNum("e803000000000000", 8))
 
 const bitbox = new BITBOX();
 
@@ -28,21 +29,27 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     super(props);
 
     this.state = {
+      payeeHash: undefined,
       contracts: []
     };
   }
 
   componentDidMount = async () => {
-    const defaultContractState = {}
+    const payeeHash = await buildLockScriptP2PKH(binToHex(payeePk));
+    // A manual test for a P2SH locking script
+    // const payeeHash = "17a91439868d08b1575e7ae9b3c910cdec2d4ab7d067d987"
+    const defaultContractState = { payeeHash }
     await this.createCurrentContractState(defaultContractState)
   }
 
   createCurrentContractState = async (params) => {
+    const { payeeHash } = params;
     const epoch = params?.defaultEpoch || defaultEpoch
     const maxAmountPerEpoch = defaultMaxAmountPerEpoch
     const remainingAmount = defaultRemainingAmount
     const blockCount = await bitbox.Blockchain.getBlockCount()
     const validFrom = blockCount
+    const expiration = validFrom + expireAfter;
 
     let remainingTimeNum = blockCount - validFrom;
     if (remainingTimeNum === 0) {
@@ -50,8 +57,9 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     }
 
     const agreementContractParams = [
-      payerPk,
-      payeePk,
+      payerPkh,
+      payeeHash,
+      numberToBinUint32LE(expiration),
       numberToBinUint32LE(epoch),
       numberToBinUint32LE(maxAmountPerEpoch),
       numberToBinUint32LE(remainingTimeNum),
@@ -70,8 +78,9 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     })
 
     const currentContract = {
-        payerPk,
-        payeePk,
+        payerPkh,
+        payeeHash,
+        expiration,
         epoch,
         maxAmountPerEpoch,
         remainingTime: remainingTimeNum,
@@ -87,17 +96,19 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     newContractState.unshift(currentContract);
 
     this.setState((prevState) => ({
-      contracts: [...newContractState]
+      contracts: [...newContractState],
+      payeeHash: payeeHash
     }))
   }
 
   createNextState = async (params) => {
-    const { contracts } = this.state;
+    const { contracts, payeeHash } = this.state;
     const nextState = params.stateIndex;
 
     const agreementContractParams = [
-      payerPk,
-      payeePk,
+      payerPkh,
+      payeeHash,
+      numberToBinUint32LE(params.expiration),
       numberToBinUint32LE(params.epoch),
       numberToBinUint32LE(params.maxAmountPerEpoch),
       numberToBinUint32LE(params.remainingTime),
@@ -116,8 +127,8 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     })
 
     const nextContract = {
-      payerPk,
-      payeePk,
+      payerPkh,
+      payeeHash,
       epoch: params.epoch,
       maxAmountPerEpoch: params.maxAmountPerEpoch,
       remainingTime: params.remainingTime,
@@ -144,10 +155,12 @@ export class AgreementContractWrapper extends React.Component<any, any> {
    * Remove all contract after the next contract state is derived.
    */
   onChangeContractDetails = async (params) => {
+    const { payeeHash } = this.state;
     const stateIndex = params.stateIndex;
     const agreementContractParams = [
-      payerPk,
-      payeePk,
+      payerPkh,
+      payeeHash,
+      numberToBinUint32LE(params.expiration),
       numberToBinUint32LE(params.epoch),
       numberToBinUint32LE(params.maxAmountPerEpoch),
       numberToBinUint32LE(params.remainingTime),
@@ -169,8 +182,8 @@ export class AgreementContractWrapper extends React.Component<any, any> {
     })
 
     currentContract = {
-      payerPk,
-      payeePk,
+      payerPkh,
+      payeeHash,
       epoch: params.epoch,
       maxAmountPerEpoch: params.maxAmountPerEpoch,
       remainingTime: params.remainingTime,
@@ -205,8 +218,9 @@ export class AgreementContractWrapper extends React.Component<any, any> {
       })
 
       const nextAgreementContractParams = [
-        payerPk,
-        payeePk,
+        payerPkh,
+        payeeHash,
+        numberToBinUint32LE(params.expiration),
         numberToBinUint32LE(params.epoch),
         numberToBinUint32LE(params.maxAmountPerEpoch),
         numberToBinUint32LE(nextState.remainingTime),

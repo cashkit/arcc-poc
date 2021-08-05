@@ -84,6 +84,23 @@ export const hash160 = async function(payload: Uint8Array): Promise<Uint8Array>
 	return ripemd160(await sha256(payload));
 };
 
+/**
+ *  * Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
+ * Helper function to construct a P2PKH locking script hex string from a compressed public key hex string
+ *
+ * @param publicKeyHex   Compressed public key hex string to create a P2PKH locking script for
+ *
+ * @returns a P2PKH locking script hex string corresponding to the passed compressed public key hex string
+ */
+ export const buildLockScriptP2PKH = async function(publicKeyHex: string): Promise<string>
+ {
+    const publicKeyHash = await hash160(hexToBin(publicKeyHex));
+
+    // Build P2PKH lock script (PUSH<25> DUP HASH160 PUSH<20> <public key hash> EQUALVERIFY CHECKSIG)
+    const lockScript = binToHex(flattenBinArray([ hexToBin('1976a914'), publicKeyHash, hexToBin('88ac') ]));
+
+    return lockScript;
+ };
 
 /**
  * Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
@@ -95,17 +112,16 @@ export const hash160 = async function(payload: Uint8Array): Promise<Uint8Array>
  */
  export const buildLockScriptP2SH = async function(scriptBytecodeHex: string): Promise<string>
  {
-     // Output function call arguments for easier collection of test data.
- 
-     const scriptHash = await hash160(hexToBin(scriptBytecodeHex));
- 
-     // Build P2SH lock script (PUSH<23> HASH160 PUSH<20> <script hash> EQUAL)
-     const lockScript = binToHex(flattenBinArray([ hexToBin('17a914'), scriptHash, hexToBin('87') ]));
- 
-     return lockScript;
+    const scriptHash = await hash160(hexToBin(scriptBytecodeHex));
+
+    // Build P2SH lock script (PUSH<23> HASH160 PUSH<20> <script hash> EQUAL)
+    const lockScript = binToHex(flattenBinArray([ hexToBin('17a914'), scriptHash, hexToBin('87') ]));
+
+    return lockScript;
  };
 
  /**
+ * Taken from :https://gitlab.com/GeneralProtocols/anyhedge/library
  * Helper function to construct a P2SH locking script hex string from a script bytecode hex string
  *
  * @param scriptBytecodeHex   Bytecode hex string of the script for which to create a P2SH locking script hex string
