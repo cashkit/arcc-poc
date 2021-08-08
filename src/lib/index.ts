@@ -69,16 +69,38 @@ export const isValidContractState = ({ epoch, maxAmountPerEpoch, remainingTime, 
  */
 export const getSpendableAmount = async ({ epoch, maxAmountPerEpoch, remainingTime, remainingAmount, validFrom, prevValidFrom = undefined }) => {
   console.log({ epoch, maxAmountPerEpoch, remainingTime, remainingAmount, validFrom, prevValidFrom })
-  let newRemainingAmount = remainingAmount;
+  let spendableAmount = remainingAmount;
 
   const currentBlockHeight = await bitbox.Blockchain.getBlockCount()
+
   const passedTime = currentBlockHeight - validFrom
   if (passedTime >= remainingTime || epoch === 0){
-    newRemainingAmount = maxAmountPerEpoch;
+    spendableAmount = maxAmountPerEpoch;
   }
-  return newRemainingAmount
+
+  if (passedTime >= epoch){
+    const missedEpochs = (passedTime - (passedTime % epoch))/epoch
+    spendableAmount = remainingAmount + missedEpochs * maxAmountPerEpoch;
+  }
+  return spendableAmount
 }
-  
+
+/**
+ *  Returns the remaining amount spendable by payee.
+ */
+ export const getRemainingAmount = async ({ epoch, remainingAmount, sendAmount, validFrom, maxAmountPerEpoch }) => {
+   console.log({ epoch, remainingAmount, sendAmount, validFrom, maxAmountPerEpoch })
+   let newRemainingAmount;
+   newRemainingAmount = remainingAmount - sendAmount;
+
+   const currentBlockHeight = await bitbox.Blockchain.getBlockCount()
+   const passedTime = currentBlockHeight - validFrom
+   if (passedTime >= epoch){
+      newRemainingAmount = maxAmountPerEpoch
+  }
+
+  return newRemainingAmount;
+}
 
 /**
  * Returns the next state constructor parameters.

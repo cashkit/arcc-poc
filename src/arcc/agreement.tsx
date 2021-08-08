@@ -19,7 +19,7 @@ import {
   payerAddr, 
   payerPk} from './common';
 import { getTime, lockScriptToAddress } from '../utils/helpers';
-import { deriveNextStateValues, isValidRemainingTime } from '../lib';
+import { deriveNextStateValues, isValidRemainingTime, getRemainingAmount } from '../lib';
 import '../App.css';
 
 import { BITBOX } from 'bitbox-sdk';
@@ -157,6 +157,7 @@ export class AgreementContract extends React.Component<any, any> {
 
     const validFrom = validFromNum
     this.setState({ isLoading: true }, () => {
+      console.log(this.props);
       this.props.onChangeContractDetails({ ...this.props, amount: this.state.sendAmountState, validFrom, stateIndex: this.props.stateIndex })
     })
   }
@@ -178,9 +179,8 @@ export class AgreementContract extends React.Component<any, any> {
     })
   }
 
-  onChangeSendAmount = (event) => {
-    const remainingAmountFromProps = this.props?.remainingAmount
-    const actualSpendableAmount = this.props?.actualSpendableAmount
+  onChangeSendAmount = async (event) => {
+    const { remainingAmount, actualSpendableAmount, epoch, validFrom, maxAmountPerEpoch } = this.props;
 
     let newSendAmount = parseInt(event.target.value)
 
@@ -196,10 +196,26 @@ export class AgreementContract extends React.Component<any, any> {
       errorMessage = `Spending amount should be less than ${actualSpendableAmount}`
     }
 
-    this.setState({ errorMessage, isLoading: true, sendAmountState: newSendAmount }, () => {
-      this.createNextState({ remainingAmount: remainingAmountFromProps - newSendAmount })
+    let newRemainingAmount = await getRemainingAmount({
+      epoch,
+      remainingAmount,
+      sendAmount: newSendAmount,
+      validFrom,
+      maxAmountPerEpoch
     })
-    
+
+    if (isNaN(newRemainingAmount)){
+      newRemainingAmount = 0
+    }
+
+    if (newRemainingAmount > maxAmountPerEpoch){
+      errorMessage = `Spending amount should be equal to ${actualSpendableAmount}`
+    }
+
+    this.setState({ errorMessage, isLoading: true, sendAmountState: newSendAmount }, () => {
+      this.createNextState({ remainingAmount: newRemainingAmount })
+    })
+
   }
 
   onChangeMinerFee = (event) => {
