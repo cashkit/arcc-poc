@@ -15,7 +15,8 @@ There can be a range of applications/mechanisms possible including but not limit
 
 <h3>Contract</h3>
 
-[arcc.cash](https://github.com/kiok46/arcc/blob/main/contracts/arcc.cash)
+- [arcc with accumulation](https://github.com/kiok46/arcc/blob/main/contracts/arcc_with_accumulation.cash)
+- [arcc without accumulation](https://github.com/kiok46/arcc/blob/main/contracts/arcc_without_accumulation.cash)
 
 
 <h3>Instructions</h3>
