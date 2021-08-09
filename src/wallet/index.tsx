@@ -6,6 +6,7 @@ const rootSeed = bitbox.Mnemonic.toSeed('CashSciptTemplate');
 const hdNode = bitbox.HDNode.fromSeed(rootSeed);
 
 const payer = bitbox.HDNode.toKeyPair(bitbox.HDNode.derive(hdNode, 0));
+
 const payerPk = bitbox.ECPair.toPublicKey(payer);
 const payerPkh = bitbox.Crypto.hash160(payerPk);
 const payerAddr = bitbox.ECPair.toCashAddress(payer);
