@@ -17,8 +17,8 @@ export const defaultMaxAmountPerEpoch = 3000
 export const defaultRemainingTime = defaultEpoch
 export const defaultRemainingAmount = defaultMaxAmountPerEpoch
 export const initialSendAmountState = 1000
-export const initialMinerFeeState = 1116 // Close to min relay fee of the network.
-export const initialRevokeMinerFeeState = 542
+export const initialMinerFeeState = 1120 // Close to min relay fee of the network.
+export const initialRevokeMinerFeeState = 550
 export const expireAfter = 25920 // Contract expires after 6 months.
 
 export const MESSAGES: any = {

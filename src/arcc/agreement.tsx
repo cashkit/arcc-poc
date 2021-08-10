@@ -347,7 +347,7 @@ export class AgreementContract extends React.Component<any, any> {
       .spend(
         payerPk,
         new SignatureTemplate(payer),
-        amountToNextState,
+        // amountToNextState,
         sendAmount
       )
       .withHardcodedFee(minerFee)
@@ -635,20 +635,6 @@ export class AgreementContract extends React.Component<any, any> {
             title={`Actual Spendable Amount: ${this.props.actualSpendableAmount}`}
             info={MESSAGES.HOVERABLE_ACTUAL_SPENDABLE_INFO}
           />
-          </div>
-
-          <div className="column">
-            <label className="label ">Miner Fee</label>
-            <div className="control">
-              <input value={minerFeeState}
-                onChange={this.onChangeMinerFee}
-                ref={this.minerFeeInputRef}
-                style={{ backgroundColor: '#F9F9F9', borderColor: 'white' }}
-                className="input"
-                type="text"
-                placeholder="Miner Fee"
-              />
-            </div>
           </div>
           
         </div>
